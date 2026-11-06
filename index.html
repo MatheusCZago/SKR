@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <style>:root{color-scheme:light}</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1e3a5f">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SKR">
 <title>Dashboard Gerencial SKR</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1225,7 +1232,7 @@ function startHTML(){
   return`<div class="start">
     <div><h1>Dashboard Gerencial SKR</h1><p class="sub">Coloque a Planilha Base exportada do CRM e veja o painel, a ficha de cada corretor, os empreendimentos, a carteira de distribuição, os alertas e um relatório pronto para copiar.</p></div>
     <label class="drop" id="drop" for="file"><b>Solte a planilha aqui</b><span class="muted">ou clique para escolher o arquivo (.xlsx ou .csv)</span></label>
-    <p class="hint" style="margin-top:-8px">A planilha é lida neste computador. Nada é enviado para a internet. Nenhum dado de lead (nome, telefone, e-mail) fica guardado; só os totais de cada exportação, para comparar uma semana com a outra.</p>
+    <p class="hint" style="margin-top:-8px">A planilha é lida neste computador e nada é enviado para a internet. A última planilha fica guardada neste navegador, para carregar sozinha quando você reabrir a página (dá para desligar em Configurações), e cada exportação deixa seus totais no histórico para comparar semanas.</p>
     <ul>
       <li><b>Painel geral</b><span>Carteiras, situação dos leads, alertas de 15, 30 e 36 dias e qualidade dos dados.</span></li>
       <li><b>Ficha do corretor</b><span>Clique no nome e veja todos os números e a lista de leads dele.</span></li>
@@ -1258,6 +1265,34 @@ function render(){
 function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>{el.hidden=true},3200)}
 function showMsg(t,kind){$('#msg').innerHTML=t?`<div class="msg ${kind||'err'}" role="alert"><span>${t}</span><button type="button" data-act="closemsg" aria-label="Fechar aviso">×</button></div>`:''}
 
+/* ============ planilha guardada neste navegador (IndexedDB) ============ */
+const KEEPKEY='skr-keep-v1',HASKEY='skr-has-base';
+const keepOn=()=>{try{return localStorage.getItem(KEEPKEY)!=='0'}catch(_){return true}};
+function baseOp(mode,fn){
+  return new Promise((res,rej)=>{
+    if(!window.indexedDB)return rej(new Error('sem IndexedDB'));
+    const q=indexedDB.open('skr-base',1);
+    q.onupgradeneeded=()=>q.result.createObjectStore('b');
+    q.onerror=()=>rej(q.error);
+    q.onsuccess=()=>{const db=q.result,t=db.transaction('b',mode),r=fn(t.objectStore('b'));
+      t.oncomplete=()=>{db.close();res(r&&r.result)};t.onerror=t.onabort=()=>{db.close();rej(t.error)}};
+  });
+}
+async function baseSave(o){try{await baseOp('readwrite',st=>st.put(o,'last'));try{localStorage.setItem(HASKEY,'1')}catch(_){}return true}catch(_){return false}}
+async function baseLoad(){try{return await baseOp('readonly',st=>st.get('last'))}catch(_){return null}}
+async function baseClear(){S.raw=null;try{await baseOp('readwrite',st=>st.delete('last'))}catch(_){}try{localStorage.removeItem(HASKEY)}catch(_){}}
+async function restoreBase(){
+  if(!keepOn())return;
+  const b=await baseLoad();
+  if(S.m)return;
+  try{
+    if(!b||!Array.isArray(b.rows))throw new Error('vazio');
+    loadTable(b.rows,b.sheetName,b.fileName,b.hdr||findHeader(b.rows));S.raw=b;
+    if(!location.hash||!/^#(painel|corretores|empreendimentos|distribuicao|alertas|historico|relatorio|c-|e-)/.test(location.hash))location.hash='#painel';
+  }catch(_){try{localStorage.removeItem(HASKEY)}catch(__){}}
+  render();
+}
+
 /* ============ carregar arquivo ============ */
 async function handleFile(file){
   showMsg('');
@@ -1273,6 +1308,8 @@ async function handleFile(file){
     }
     if(!hdr)throw new Error('Não encontrei as colunas esperadas. A planilha precisa ter, no mínimo, '+Object.values(COL_NAMES).join(', ')+'. Use a Planilha Base exportada do CRM.');
     loadTable(rows,sheetName,file.name,hdr);
+    S.raw={rows,sheetName,fileName:file.name,hdr,saved:Date.now()};
+    if(keepOn())baseSave(S.raw);
     const rec=histRecord();
     if(!location.hash||!/^#(painel|corretores|empreendimentos|distribuicao|alertas|historico|relatorio|c-|e-)/.test(location.hash))location.hash='#painel';
     render();window.scrollTo(0,0);
@@ -1323,6 +1360,10 @@ function openSettings(){
     <textarea id="set-emp" rows="8" style="width:100%;margin-top:6px" spellcheck="false">${esc(S.settings.emp)}</textarea>
     <p style="margin:14px 0 0"><b>Corretores da equipe</b></p><p class="hint">Marque quem faz parte da equipe do Evandro. Quem fica desmarcado vai para "Fora da equipe" e sai do ranking.</p>
     <div class="team">${list.map((b,i)=>`<label><input type="checkbox" data-ck="${esc(b.ck)}" ${b.g==='equipe'?'checked':''}><span>${esc(b.nick)} <span class="muted">· ${esc(b.full)} · ${n0(b.st.n)} lead${b.st.n===1?'':'s'}</span></span></label>`).join('')||'<span class="muted">Nenhum corretor na planilha.</span>'}</div>
+    <p style="margin:14px 0 4px"><b>Planilha guardada</b></p>
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="set-keep" ${keepOn()?'checked':''}><span>Lembrar a última planilha neste navegador</span></label>
+    <p class="hint">Assim, ao reabrir a página, ela carrega sozinha. Os dados da planilha (inclusive nome, telefone e e-mail dos leads) ficam só neste computador. Desmarque se outras pessoas usam este navegador.</p>
+    <p style="margin:6px 0 0"><button class="btn" type="button" data-act="base-forget">Esquecer a planilha guardada agora</button></p>
     <div class="acts"><button class="btn" type="button" data-act="set-reset">Restaurar padrão</button><button class="btn" type="button" data-act="set-cancel">Cancelar</button><button class="btn btn-primary" type="button" data-act="set-save">Salvar</button></div></div>`;
   document.body.appendChild(ov);$('#set-dist').focus();
 }
@@ -1341,6 +1382,9 @@ function saveFromDialog(){
   S.settings.team=S.settings.team.filter(k=>!present.has(k)).concat(checked);
   S.settings.dist=str($('#set-dist').value)||DEFAULT_DIST;
   S.settings.emp=$('#set-emp').value;
+  const keep=$('#set-keep').checked;
+  try{localStorage.setItem(KEEPKEY,keep?'1':'0')}catch(_){}
+  if(!keep)baseClear();else if(S.raw)baseSave(S.raw);
   saveSettings();closeSettings();recompute();histRecord();S.ex={};render();toast('Configurações salvas.');
 }
 
@@ -1362,6 +1406,7 @@ document.addEventListener('click',e=>{
     case'set-save':saveFromDialog();break;
     case'set-reset':S.settings={team:DEFAULT_TEAM.slice(),dist:DEFAULT_DIST,emp:DEFAULT_EMP};saveSettings();closeSettings();recompute();histRecord();S.ex={};render();toast('Configurações padrão restauradas.');break;
     case'closemsg':showMsg('');break;
+    case'base-forget':baseClear();toast('A planilha guardada foi apagada deste navegador.');break;
     case'hist-del':S.hdel=+t.dataset.v;render();break;
     case'hist-del-no':S.hdel=null;render();break;
     case'hist-del-yes':{const r=+t.dataset.v;S.hist=S.hist.filter(x=>x.ref!==r);histStore();S.hdel=null;render();toast('Exportação removida do histórico.');break}
@@ -1406,6 +1451,10 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSettings()});
 window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});
 window.__skr={S,EX};
 render();
+{let has=false;try{has=keepOn()&&localStorage.getItem(HASKEY)==='1'}catch(_){}
+ if(has&&!S.m)app.innerHTML='<div class="start"><p class="sub">Abrindo a última planilha…</p></div>';
+ if(has||keepOn())restoreBase().then(()=>{if(!S.m)render()}).catch(()=>{if(!S.m)render()})}
 })();
 </script>
+<script>if("serviceWorker"in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))navigator.serviceWorker.register("sw.js").catch(function(){});</script>
 </body></html>

@@ -7,7 +7,7 @@ Painel gerencial da equipe do Evandro (SKR). Página única, sem servidor e sem 
 ## Como usar
 
 1. Abra a página.
-2. Solte a Planilha Base exportada do CRM (`.xlsx` ou `.csv`).
+2. Solte a Planilha Base exportada do CRM (`.xlsx` ou `.csv`). Ela fica guardada neste navegador e carrega sozinha da próxima vez.
 3. Navegue pelas abas: Painel geral, Corretores, Empreendimentos, Distribuição, Alertas, Histórico e Relatório.
 
 ## O que cada aba mostra
@@ -20,9 +20,23 @@ Painel gerencial da equipe do Evandro (SKR). Página única, sem servidor e sem 
 - **Histórico:** cada exportação carregada fica guardada (só totais) para comparar semanas.
 - **Relatório:** texto gerencial pronto para copiar.
 
+## Instalar como aplicativo
+
+Com a página aberta pelo endereço do GitHub Pages (https):
+
+- **Computador (Chrome ou Edge):** clique no ícone de instalar na barra de endereço, ou em ⋮ → Salvar e compartilhar → Instalar página como app.
+- **Android (Chrome):** ⋮ → Instalar app (ou Adicionar à tela inicial).
+- **iPhone (Safari):** botão Compartilhar → Adicionar à Tela de Início.
+
+Depois de instalado, abre em janela própria e funciona sem internet.
+
 ## Privacidade
 
-A planilha é lida no próprio navegador e não é enviada para a internet. Só os totais de cada exportação ficam guardados no navegador (aba Histórico). Nenhum nome, telefone ou e-mail de lead é guardado. **Não envie planilhas reais para este repositório.**
+- A planilha é lida no próprio navegador e **não é enviada para a internet**.
+- A última planilha fica guardada neste navegador (inclui nome, telefone e e-mail dos leads), para carregar sozinha quando a página for reaberta. Dá para desligar ou apagar em Configurações → Planilha guardada.
+- Cada exportação também deixa seus totais no histórico (sem dados pessoais).
+- **Não envie planilhas reais para este repositório.** Ele é público.
+- Tudo fica guardado por navegador e por endereço: outro computador, outro navegador ou o app do iPhone começam vazios.
 
 ## Regras usadas
 
@@ -33,4 +47,4 @@ A planilha é lida no próprio navegador e não é enviada para a internet. Só 
 
 ## Atualizar
 
-Substitua o `index.html` por uma versão nova e faça o commit.
+Substitua o `index.html` por uma versão nova e faça o commit. O GitHub Pages publica sozinho em 1 a 2 minutos, e o app instalado se atualiza na próxima abertura.
