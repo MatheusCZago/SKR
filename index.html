@@ -698,8 +698,7 @@ function prioPanel(){
   const rows=PRIO.map(p=>{const x=L.filter(l=>l.p===p[0]);
     return`<tr><td><b>${p[1]}</b> · ${p[2]}<small>${p[3]}</small></td><td class="r">${n0(x.length)}</td><td class="r">${n0(x.filter(l=>l.dias>30).length)}</td><td class="r">${n0(x.filter(l=>l.dias>36).length)}</td><td class="r"><button type="button" class="btn" data-act="exband" data-ex="distribuicao" data-f="prio" data-v="${p[0]}">Ver lista</button></td></tr>`}).join('');
   return`<section class="panel"><h2>Triagem da carteira (P1 a P4)</h2><p class="hint">Ordem sugerida para revisar os leads antes de distribuir.</p>
-    <div class="tw"><table class="tbl"><thead><tr><th>Prioridade</th><th class="r">Registros</th><th class="r">Acima de 30</th><th class="r">Acima de 36</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
-    <p class="note">Critérios deduzidos dos números do dashboard de 26/10/2026 (227, 137, 195 e 337 leads), que não traz a regra escrita. Confirmar com o Evandro antes de usar para decidir.</p></section>`;
+    <div class="tw"><table class="tbl"><thead><tr><th>Prioridade</th><th class="r">Registros</th><th class="r">Acima de 30</th><th class="r">Acima de 36</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
 }
 
 /* ---- ficha: corretor, carteira de distribuição ou empreendimento ---- */
@@ -826,7 +825,7 @@ function buildReport(){
       p(`${quem} acima de 36 dias ${ag36===l36.length&&l36.length===1?'está':'estão'} em Aguardando Atendimento${s36?`, e ${n0(s36)} ${s36===1?'também não possui':'também não possuem'} data de primeira interação`:''}.`)}
     h3('Triagem da carteira de distribuição (P1 a P4)');
     push({t:'tb',num:true,head:['Prioridade','Registros'],rows:PRIO.map(q=>[q[1]+' — '+q[2].toLowerCase(),n0(m.distLeads.filter(l=>l.p===q[0]).length)])});
-    p('A lista de leads de cada prioridade está na aba Distribuição, com opção de copiar para planilha. Os critérios de P1 a P4 foram deduzidos dos números do dashboard de 26/10 e ainda precisam da confirmação do Evandro.');
+    p('A lista de leads de cada prioridade está na aba Distribuição, com opção de copiar para planilha.');
     p('Recomendação: revisar o histórico e a elegibilidade dos registros antes de qualquer redistribuição.');
   }else p('A carteira de distribuição está vazia nesta exportação.');
 

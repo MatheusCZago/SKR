@@ -28,7 +28,7 @@ A planilha é lida no próprio navegador e não é enviada para a internet. Só 
 
 - Faixas de inatividade cumulativas, com o campo "Dias sem contato" do CRM: acima de 15, 30 e 36 dias. O campo é provisório, porque a exportação não traz a data do último contato.
 - Carteira de distribuição: leads do corretor "CORRETOR EQUIPE EVANDRO".
-- Triagem P1 a P4 (deduzida dos números do dashboard de 26/10/2026, a confirmar com o Evandro): P1 = Aguardando Atendimento ou Visita Realizada; P4 = dados completos e até 15 dias sem contato; P3 = Tentativa de Contato com dados completos; P2 = o restante.
+- Triagem P1 a P4: P1 = Aguardando Atendimento ou Visita Realizada; P4 = dados completos e até 15 dias sem contato; P3 = Tentativa de Contato com dados completos; P2 = o restante.
 - Visitas e vendas são a situação atual do lead, não o resultado do mês.
 
 ## Atualizar
