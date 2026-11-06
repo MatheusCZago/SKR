@@ -1,0 +1,1412 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<style>:root{color-scheme:light}</style>
+<title>Dashboard Gerencial SKR</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: faixa azul-marinho no topo com abas; conteúdo em painéis brancos sobre fundo frio.
+   Cores de gráfico: 3 categóricas validadas (azul, laranja, verde-água) + 3 de alerta (amarelo, laranja, vermelho). */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --surface2:#f7f9fb;
+  --ink:#0f1c2b; --ink2:#46566a; --muted:#5d6b7c;
+  --line:#e1e6ed; --line2:#cbd3dd; --hover:#eef2f7;
+  --brand:#1e3a5f; --brand2:#2b4d7a; --on-brand:#ffffff; --on-brand2:#c7d5e6;
+  --link:#1a5fb4; --focus:#2a78d6;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --warn:#fab219; --serious:#ec835a; --crit:#d03b3b; --on-warn:#0b0b0b;
+  --ok:#006300; --danger-ink:#b02a2a;
+  --font:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d131a; --surface:#151d26; --surface2:#19232e;
+    --ink:#e8edf3; --ink2:#b2bdc9; --muted:#8e9cab;
+    --line:#25313d; --line2:#34424f; --hover:#1c2733;
+    --brand:#16273d; --brand2:#223a58; --on-brand2:#a9bad0;
+    --link:#7fb1f0; --focus:#7fb1f0;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+    --ok:#0ca30c; --danger-ink:#ee7a7a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d131a; --surface:#151d26; --surface2:#19232e;
+  --ink:#e8edf3; --ink2:#b2bdc9; --muted:#8e9cab;
+  --line:#25313d; --line2:#34424f; --hover:#1c2733;
+  --brand:#16273d; --brand2:#223a58; --on-brand2:#a9bad0;
+  --link:#7fb1f0; --focus:#7fb1f0;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  --ok:#0ca30c; --danger-ink:#ee7a7a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--font)}
+[hidden]{display:none!important}
+a{color:var(--link)}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{width:100%;max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+
+/* topo */
+.top{background:var(--brand);color:var(--on-brand)}
+.top-in{display:flex;align-items:center;gap:8px 20px;flex-wrap:wrap;padding-block:12px 4px}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.logo{font-weight:700;font-size:13px;letter-spacing:.1em;border:1.5px solid currentColor;border-radius:4px;padding:2px 7px}
+.brand-t{font-weight:600;font-size:15px;line-height:1.15}
+.brand-t small{display:block;font-weight:400;font-size:12px;color:var(--on-brand2)}
+.top-file{font-size:12.5px;color:var(--on-brand2);text-align:right;min-width:0}
+.top-file b{color:var(--on-brand);font-weight:600}
+.top-file .fn{display:block;max-width:34ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:auto}
+.top-act{display:flex;gap:8px}
+.btn{border:1px solid var(--line2);background:var(--surface);border-radius:6px;padding:6px 12px;line-height:1.3}
+.btn:hover{background:var(--hover)}
+a.btn{text-decoration:none;display:inline-block;color:var(--ink)}
+.btn-top{background:transparent;color:var(--on-brand);border-color:rgba(255,255,255,.38)}
+.btn-top:hover{background:rgba(255,255,255,.12)}
+.btn-primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-primary:hover{background:var(--brand2)}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{color:var(--on-brand2);text-decoration:none;padding:9px 14px;border-bottom:3px solid transparent;white-space:nowrap;font-weight:500}
+.tabs a:hover{color:var(--on-brand)}
+.tabs a[aria-current="page"]{color:var(--on-brand);border-bottom-color:var(--on-brand)}
+
+main{padding-block:22px 56px}
+h1{font-size:22px;line-height:1.25;margin:0;font-weight:600;text-wrap:balance}
+h2{font-size:15px;line-height:1.3;margin:0;font-weight:600}
+.sub{color:var(--ink2);margin:4px 0 0}
+.stack-v{display:flex;flex-direction:column;gap:16px}
+.row-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 16px;margin-bottom:14px}
+.sec-l{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:22px 0 8px}
+
+#msg{padding-top:12px}
+.msg{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;border:1px solid var(--line2);background:var(--surface);border-radius:8px;padding:10px 14px}
+.msg.err{border-color:var(--crit)}
+.msg.info{border-color:var(--warn)}
+.msg button{border:0;background:none;color:var(--muted);font-size:18px;line-height:1;padding:0 4px}
+
+/* painéis */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;min-width:0}
+.panel>h2{margin:0 0 10px}
+.panel>h2+.hint{margin:-6px 0 12px}
+.hint{color:var(--muted);font-size:12.5px;margin:0}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:900px){.grid3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.grid2,.grid3{grid-template-columns:minmax(0,1fr)}}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px}
+.kpi{display:block;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:inherit;text-decoration:none;min-width:0}
+.kpi-link:hover{border-color:var(--line2);background:var(--surface2)}
+.kpi-l{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink2);font-weight:500}
+.kpi-v{font-size:26px;line-height:1.2;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi-s{font-size:12px;color:var(--muted);margin-top:2px;min-height:1.5em}
+.sev{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none;background:var(--line2)}
+.sev-15{background:var(--warn)}.sev-30{background:var(--serious)}.sev-36{background:var(--crit)}
+
+/* barras */
+.brow{display:grid;grid-template-columns:minmax(7.5rem,11.5rem) minmax(0,1fr) 6.2rem;gap:4px 12px;align-items:center;padding:5px 0;color:inherit;text-decoration:none;border-radius:6px}
+a.brow:hover{background:var(--hover)}
+.blab{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btrack{height:10px;min-width:0}
+.bar{height:10px;border-radius:0 4px 4px 0;min-width:2px;background:var(--s1)}
+.bval{font-size:13px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bpct{color:var(--muted);margin-left:6px;font-size:12px}
+@media (max-width:560px){
+  .brow{grid-template-columns:minmax(0,1fr) 5.4rem}
+  .brow .blab{grid-column:1/2}
+  .brow .bval{grid-column:2/3;grid-row:1}
+  .brow .btrack{grid-column:1/3}
+}
+.stackbar{display:flex;gap:2px;height:14px;margin:6px 0 10px}
+.stackbar i{display:block;min-width:3px;border-radius:3px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px}
+.lg{display:inline-flex;align-items:center;gap:7px}
+.lg i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+/* tabelas */
+.tw{overflow-x:auto;margin-inline:-2px;position:relative}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{font-size:12px;font-weight:600;color:var(--ink2);text-align:left;padding:8px 8px;border-bottom:1px solid var(--line2);white-space:nowrap;background:var(--surface)}
+.tbl td{padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tbody tr:hover{background:var(--hover)}
+.tbl .r{text-align:right;font-variant-numeric:tabular-nums}
+.tbl tfoot td{font-weight:600;border-bottom:0;border-top:1px solid var(--line2)}
+.tbl th button{all:unset;cursor:pointer;display:inline-flex;gap:4px;align-items:center}
+.tbl th button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.tbl th.r button{justify-content:flex-end}
+.tbl th[aria-sort="ascending"] button::after{content:"▲";font-size:9px}
+.tbl th[aria-sort="descending"] button::after{content:"▼";font-size:9px}
+.tbl td:first-child:has(a.nm){white-space:nowrap}
+.tbl a.nm{font-weight:600;text-decoration:none;color:var(--link)}
+.tbl a.nm:hover{text-decoration:underline}
+.tbl small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+.cellbar{position:relative;display:inline-block;min-width:2.2ch;padding-bottom:5px}
+.cellbar i{position:absolute;left:0;bottom:0;height:3px;border-radius:2px;background:var(--s1);min-width:0}
+.cellbar i.sev-15{background:var(--warn)}.cellbar i.sev-30{background:var(--serious)}.cellbar i.sev-36{background:var(--crit)}
+.dias{display:inline-flex;align-items:center;gap:6px;justify-content:flex-end}
+.ex-tbl td{white-space:nowrap}
+.ex-tbl td.wrap{white-space:normal;min-width:11rem;max-width:18rem}
+
+.pill{display:inline-block;font-size:12px;border:1px solid var(--line2);border-radius:999px;padding:1px 9px;color:var(--ink2);white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:13px}
+.chip:hover{background:var(--hover)}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.chip .c{font-variant-numeric:tabular-nums;opacity:.8;font-size:12px}
+.callout{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;text-decoration:none;color:inherit;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 16px}
+.callout:hover{border-color:var(--line2);background:var(--surface2)}
+.callout b{display:block}
+.callout span.m{color:var(--ink2);font-size:13px}
+.callout .go{color:var(--link);font-weight:600;white-space:nowrap}
+.crumbs{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.crumbs a{text-decoration:none;font-weight:500}
+.crumbs select{max-width:100%}
+select,textarea,input[type="search"],input[type="text"]{border:1px solid var(--line2);background:var(--surface);border-radius:6px;padding:6px 10px;min-width:0}
+details.panel summary{cursor:pointer;font-weight:600}
+details.panel[open] summary{margin-bottom:10px}
+ul.rules{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.note{font-size:12.5px;color:var(--ink2);margin:10px 0 0}
+
+/* explorer */
+.ex-filters{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:12px 0}
+.ex-filters input[type="search"]{flex:1 1 220px;max-width:340px}
+.ex-sum{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--ink2);font-size:13px;margin:4px 0 8px}
+.ex-more{display:flex;justify-content:center;padding-top:12px}
+.empty{padding:26px 8px;text-align:center;color:var(--muted)}
+
+/* tela inicial */
+.start{max-width:760px;margin:28px auto 0;display:flex;flex-direction:column;gap:22px}
+.drop{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;border:2px dashed var(--line2);border-radius:12px;padding:38px 18px;background:var(--surface);cursor:pointer}
+.drop:hover,.drop.over,.drop:focus-within{border-color:var(--s1);background:var(--surface2)}
+.drop b{font-size:16px}
+.start ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.start li{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 14px}
+.start li b{display:block;margin-bottom:2px}
+.start li span{color:var(--ink2);font-size:13px}
+.sample-banner{background:var(--surface);border:1px solid var(--warn);border-radius:8px;padding:8px 14px;margin-bottom:16px;font-size:13px}
+
+/* relatório */
+.report{max-width:920px}
+.report .rtitle{font-size:20px;margin:0 0 4px;line-height:1.25}
+.report .rmeta{color:var(--muted);font-size:12.5px;margin:0 0 14px}
+.report .rh2{font-size:16px;font-weight:600;margin:26px 0 8px;padding-top:16px;border-top:1px solid var(--line)}
+.report .rh3{font-size:13.5px;font-weight:600;margin:16px 0 6px;color:var(--ink2)}
+.report p{margin:8px 0}
+.report .tw{margin:8px 0 12px}
+.rkv{margin:8px 0 12px;display:grid}
+.rkv>div{display:grid;grid-template-columns:minmax(10rem,17rem) minmax(0,1fr);gap:2px 14px;padding:6px 0;border-bottom:1px solid var(--line)}
+.rkv dt{color:var(--ink2)}
+.rkv dd{margin:0}
+@media (max-width:560px){.rkv>div{grid-template-columns:minmax(0,1fr)}}
+
+/* histórico */
+.dg{color:var(--ok);font-weight:600}.db{color:var(--danger-ink);font-weight:600}.d0{color:var(--muted)}
+.tbl th.grp{text-align:center;border-bottom:1px solid var(--line)}
+.cmp-sel{display:flex;flex-wrap:wrap;gap:12px 20px;margin:0 0 16px}
+.cmp-sel select{margin-left:6px}
+.cmp{margin-bottom:16px}
+.cmp-h{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;margin-bottom:10px}
+.cmp-h a{margin-left:auto}
+.cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.cmp-i{display:flex;flex-direction:column;gap:2px}
+.cmp-i b{font-size:22px;font-weight:600;line-height:1.2}
+.ph{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;justify-content:space-between}
+.ph h2{margin:0}
+.lc{display:block;width:100%;height:auto;margin-top:8px}
+.lc text{fill:var(--muted);font-size:11px}
+.lc .endv{fill:var(--ink);font-weight:600}
+.lc .grid{stroke:var(--line);stroke-width:1}
+.lc .hit{fill:transparent;pointer-events:all}
+.lc .hit:hover{fill:var(--hover);fill-opacity:.7}
+.tbl-view{margin-top:10px}
+.tbl-view summary{cursor:pointer;color:var(--link)}
+.kpis-s{margin:8px 0 14px}
+.fn2{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+
+/* diálogo */
+.ov{position:fixed;inset:0;background:rgba(8,14,22,.55);display:flex;align-items:flex-start;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) 16px 16px;overflow:auto;z-index:50}
+.dlg{background:var(--surface);border:1px solid var(--line2);border-radius:12px;width:100%;max-width:560px;padding:20px;margin-top:5vh}
+.dlg h2{font-size:17px;margin-bottom:4px}
+.dlg label{display:block}
+.dlg .team{display:grid;gap:2px;max-height:42vh;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:6px 0 14px}
+.dlg .team label{display:flex;gap:10px;align-items:center;padding:4px 0}
+.dlg .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:8px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom,0px));background:var(--brand);color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;z-index:60;max-width:calc(100vw - 32px)}
+@media (max-width:640px){
+  .top-file{text-align:left;order:3;width:100%}
+  .top-file .fn{margin-left:0}
+  .kpi-v{font-size:23px}
+}
+@media (prefers-reduced-motion:no-preference){.kpi,.callout,.chip,.btn{transition:background-color .12s,border-color .12s}}
+</style>
+</head><body>
+<header class="top">
+  <div class="wrap">
+    <div class="top-in">
+      <div class="brand"><span class="logo">SKR</span><span class="brand-t">Dashboard Gerencial<small>Equipe Evandro</small></span></div>
+      <div class="top-file" id="topfile" hidden></div>
+      <div class="top-act" id="topact" hidden>
+        <button class="btn btn-top" type="button" data-act="pick">Trocar planilha</button>
+        <button class="btn btn-top" type="button" data-act="settings">Configurações</button>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs" aria-label="Seções" hidden></nav>
+  </div>
+</header>
+<div class="wrap" id="msg" aria-live="polite"></div>
+<main class="wrap" id="app"></main>
+<div id="toast" role="status" hidden></div>
+<input class="vh" type="file" id="file" accept=".xlsx,.xlsm,.csv,.tsv,.txt" tabindex="-1">
+
+<script>
+(function(){
+'use strict';
+
+/* ============ utilidades ============ */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nf=new Intl.NumberFormat('pt-BR');
+const n0=v=>nf.format(v);
+const pct=(a,b)=>b?((a/b)*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%':'—';
+const norm=s=>String(s==null?'':s).normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/\s+/g,' ').trim();
+const str=v=>v==null?'':String(v).trim();
+const fmtDay=d=>{if(d==null)return '—';const t=new Date(d*86400000);return String(t.getUTCDate()).padStart(2,'0')+'/'+String(t.getUTCMonth()+1).padStart(2,'0')+'/'+t.getUTCFullYear()};
+const todayDay=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/86400000);
+function toDay(v){
+  if(v==null||v==='')return null;
+  if(v instanceof Date)return Math.floor(v.getTime()/86400000);
+  if(typeof v==='number')return v>20000&&v<80000?Math.floor(v)-25569:null;
+  const s=String(v).trim();let m;
+  if((m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/)))return Math.floor(Date.UTC(+m[3],+m[2]-1,+m[1])/86400000);
+  if((m=s.match(/^(\d{4})-(\d{2})-(\d{2})/)))return Math.floor(Date.UTC(+m[1],+m[2]-1,+m[3])/86400000);
+  return null;
+}
+function toNum(v){
+  if(typeof v==='number')return isFinite(v)?v:null;
+  if(v==null||v==='')return null;
+  const n=Number(String(v).replace(',','.'));
+  return isFinite(n)?n:null;
+}
+function titleCase(s){
+  return String(s).toLowerCase().replace(/(^|\s)([a-zà-ú])/g,(m,a,b)=>a+b.toUpperCase())
+    .replace(/\s(De|Da|Do|Dos|Das|E)(?=\s)/g,x=>x.toLowerCase());
+}
+function parseName(raw){
+  const m=String(raw).match(/^(.*?)\s*-\s*([^-]+?)\s*$/);
+  if(m&&m[1])return{full:titleCase(m[1]),nick:titleCase(m[2])};
+  const t=titleCase(raw);return{full:t,nick:t.split(' ')[0]};
+}
+/* apelido de um corretor ("NOME COMPLETO - APELIDO" -> APELIDO), na mesma forma normalizada da equipe */
+function nickKey(ck){const m=String(ck).match(/^(.*?)\s*-\s*([^-]+?)\s*$/);return m&&m[1]?norm(m[2]):''}
+const slugify=s=>norm(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+function fmtTel(raw){
+  const t=str(raw).replace(/^'+|'+$/g,'').trim();
+  const m=t.match(/^\+?55\s?(\d{2})\s?(9?\d{4})-?(\d{4})$/);
+  return m?'+55 ('+m[1]+') '+m[2]+'-'+m[3]:t;
+}
+
+/* ============ constantes de negócio ============ */
+const BANDS=[15,30,36];                       // faixas cumulativas, critério estrito (> N dias)
+const BIN_LABELS=['0 a 7 dias','8 a 15 dias','16 a 30 dias','31 a 36 dias','Mais de 36 dias'];
+const BIN_SEV=['','','15','30','36'];
+const SIT_ORDER=['Aguardando Atendimento','Tentativa de Contato','Em Atendimento','Visita Agendada','Visita Realizada','Reserva','Análise de Crédito','Venda Realizada','Cliente Futuro'];
+const DEFAULT_DIST='CORRETOR EQUIPE EVANDRO';
+const DEFAULT_TEAM=['SERENA','LOYOLA','JOSUE','DORIVAL','SEABRA','NAIANY','NOVAES','RIPINA','LEONARDA','CALLERI','SENNA','CLAUDIA','FAUSTO','ALMADA','PIETRO'];  // só apelidos: o CRM escreve "NOME COMPLETO - APELIDO"
+
+const OFFICIAL=['Chronos Pinheiros','Almá Pinheiros','Leaf Loefgren','Praça Higienópolis','Emiie Moema','Ayya Jardins','Latitude','Oliie 117','Lizz 177','BP Maestro Cardim'];
+const DEFAULT_EMP=['CP = Chronos Pinheiros','AP = Almá Pinheiros','LEAF = Leaf Loefgren','PH = Praça Higienópolis','EM = Emiie Moema','OLIIE = Oliie 117','LIZZ = Lizz 177','BP1 = BP Maestro Cardim'].join('\n');
+const COLS={
+  id:['ID'],sit:['SITUACAO'],cad:['DATA PRIMEIRO CADASTRO'],ent:['DATA DA ULTIMA ENTRADA'],nome:['NOME'],
+  email:['E-MAIL','EMAIL'],tel:['TELEFONE'],emp:['EMPREENDIMENTO'],reserva:['RESERVA'],simul:['SIMULACAO'],
+  corretor:['CORRETOR'],origem:['PRIMEIRA ORIGEM'],inter:['DATA DA PRIMEIRA INTERACAO (CORRETOR)','DATA DA PRIMEIRA INTERACAO'],
+  dias:['DIAS SEM CONTATO'],mom:['MOMENTO DO LEAD']
+};
+const REQUIRED=['id','sit','corretor','dias'];
+const COL_NAMES={id:'Id',sit:'Situação',corretor:'Corretor',dias:'Dias sem contato'};
+const SK={AG:'AGUARDANDO ATENDIMENTO',TC:'TENTATIVA DE CONTATO',EA:'EM ATENDIMENTO',VR:'VISITA REALIZADA',VA:'VISITA AGENDADA',VD:'VENDA REALIZADA'};
+
+/* ============ estado ============ */
+const SETKEY='skr-painel-v1',HKEY='skr-hist-v1';
+const S={m:null,sample:false,sampleTeam:null,settings:loadSettings(),sort:{col:'leads',dir:-1},ex:{},hist:histLoad(),hc:{a:null,b:null},hm:'a36',histOk:true,hdel:null};
+const EX={};
+function loadSettings(){
+  const d={team:DEFAULT_TEAM.slice(),dist:DEFAULT_DIST,emp:DEFAULT_EMP};
+  try{const j=JSON.parse(localStorage.getItem(SETKEY)||'null');
+    if(j&&Array.isArray(j.team))return{team:j.team.map(norm),dist:str(j.dist)||DEFAULT_DIST,emp:typeof j.emp==='string'?j.emp:DEFAULT_EMP};}catch(_){}
+  return d;
+}
+/* grafias do CRM -> nome oficial do empreendimento (ignora maiúsculas, acentos, dois-pontos, barras) */
+const ekey=s=>norm(s).replace(/[^A-Z0-9 ]/g,'').replace(/\s+/g,' ').trim();
+function empResolver(){
+  const map=new Map();
+  for(const o of OFFICIAL)map.set(ekey(o),o);
+  for(const line of String(S.settings.emp||'').split(/\r?\n/)){
+    const i=line.indexOf('=');if(i<0)continue;
+    const a=ekey(line.slice(0,i)),b=str(line.slice(i+1));if(!a||!b)continue;
+    map.set(a,OFFICIAL.find(o=>ekey(o)===ekey(b))||b);
+  }
+  return map;
+}
+function saveSettings(){try{localStorage.setItem(SETKEY,JSON.stringify(S.settings))}catch(_){}}
+
+/* ============ leitura de .xlsx (zip + XML, sem biblioteca) ============ */
+async function readXlsxTables(buf,wanted){
+  const u8=new Uint8Array(buf),dv=new DataView(buf);
+  let eocd=-1;
+  for(let i=u8.length-22;i>=Math.max(0,u8.length-65557);i--){if(dv.getUint32(i,true)===0x06054b50){eocd=i;break}}
+  if(eocd<0)throw new Error('Este arquivo não parece ser um .xlsx válido. Abra no Excel e salve novamente como .xlsx.');
+  const total=dv.getUint16(eocd+10,true);let p=dv.getUint32(eocd+16,true);
+  const ent={},td=new TextDecoder();
+  for(let n=0;n<total;n++){
+    if(dv.getUint32(p,true)!==0x02014b50)break;
+    const method=dv.getUint16(p+10,true),csize=dv.getUint32(p+20,true);
+    const nl=dv.getUint16(p+28,true),el=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lho=dv.getUint32(p+42,true);
+    ent[td.decode(u8.subarray(p+46,p+46+nl))]={method,csize,lho};
+    p+=46+nl+el+cl;
+  }
+  async function file(name){
+    const e=ent[name];if(!e)return null;
+    const start=e.lho+30+dv.getUint16(e.lho+26,true)+dv.getUint16(e.lho+28,true);
+    const data=u8.subarray(start,start+e.csize);
+    if(e.method===0)return td.decode(data);
+    if(e.method!==8)throw new Error('Compactação do arquivo não suportada.');
+    if(typeof DecompressionStream==='undefined')throw new Error('Este navegador é antigo demais para abrir .xlsx. Use o Chrome ou o Edge atualizado.');
+    const s=new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+    return await new Response(s).text();
+  }
+  const xml=t=>{const d=new DOMParser().parseFromString(t,'application/xml');if(d.getElementsByTagName('parsererror').length)throw new Error('Arquivo .xlsx com conteúdo ilegível.');return d};
+  const wbX=await file('xl/workbook.xml');if(!wbX)throw new Error('Não encontrei as abas dentro do arquivo .xlsx.');
+  const wb=xml(wbX),relsX=await file('xl/_rels/workbook.xml.rels');
+  const rels={};
+  if(relsX)for(const r of xml(relsX).getElementsByTagNameNS('*','Relationship'))rels[r.getAttribute('Id')]=r.getAttribute('Target');
+  const RNS='http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+  const sheets=[...wb.getElementsByTagNameNS('*','sheet')].map((s,i)=>{
+    const rid=s.getAttributeNS(RNS,'id')||s.getAttribute('r:id');let t=rels[rid]||('worksheets/sheet'+(i+1)+'.xml');
+    t=t.replace(/^\//,'');if(!t.startsWith('xl/'))t='xl/'+t;
+    return{name:s.getAttribute('name'),path:t};
+  });
+  const sst=[];const ssX=await file('xl/sharedStrings.xml');
+  if(ssX){for(const si of xml(ssX).getElementsByTagNameNS('*','si')){
+    let s='';for(const t of si.getElementsByTagNameNS('*','t')){if(t.parentNode.localName==='rPh')continue;s+=t.textContent}
+    sst.push(s)}}
+  const colIdx=ref=>{let n=0;for(const ch of ref.replace(/\d+/g,''))n=n*26+ch.charCodeAt(0)-64;return n-1};
+  for(const sh of sheets){
+    const sx=await file(sh.path);if(!sx)continue;
+    const rows=[];let last=-1;
+    for(const row of xml(sx).getElementsByTagNameNS('*','row')){
+      const rn=(+row.getAttribute('r')||last+2)-1;last=rn;const arr=[];
+      for(const c of row.getElementsByTagNameNS('*','c')){
+        const ci=colIdx(c.getAttribute('r')||'A1'),t=c.getAttribute('t');
+        const v=c.getElementsByTagNameNS('*','v')[0];let val=null;
+        if(t==='inlineStr'){val=[...c.getElementsByTagNameNS('*','t')].map(x=>x.textContent).join('')}
+        else if(v){const tx=v.textContent;
+          if(t==='s')val=sst[+tx];else if(t==='str')val=tx;else if(t==='b')val=tx==='1';else if(t==='e')val=null;else val=parseFloat(tx)}
+        arr[ci]=val===undefined?null:val;
+      }
+      rows[rn]=Array.from(arr,v=>v===undefined?null:v);
+    }
+    const dense=Array.from(rows,r=>r||[]);
+    if(wanted(dense))return{rows:dense,sheetName:sh.name};
+  }
+  return null;
+}
+async function readCsv(file){
+  const buf=await file.arrayBuffer();let text;
+  try{text=new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch(_){text=new TextDecoder('windows-1252').decode(buf)}
+  text=text.replace(/^﻿/,'');
+  const first=text.split(/\r?\n/,1)[0];
+  const d=[';','\t',','].map(x=>[x,first.split(x).length]).sort((a,b)=>b[1]-a[1])[0][0];
+  const rows=[];let row=[],cur='',q=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(q){if(ch==='"'){if(text[i+1]==='"'){cur+='"';i++}else q=false}else cur+=ch}
+    else if(ch==='"')q=true;
+    else if(ch===d){row.push(cur);cur=''}
+    else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(cur);rows.push(row);row=[];cur=''}
+    else cur+=ch;
+  }
+  if(cur!==''||row.length){row.push(cur);rows.push(row)}
+  return rows;
+}
+
+/* ============ tabela -> leads ============ */
+function findHeader(rows){
+  for(let r=0;r<Math.min(rows.length,10);r++){
+    const hs=(rows[r]||[]).map(norm);const ci={};let hit=0;
+    for(const k in COLS){ci[k]=hs.findIndex(h=>COLS[k].includes(h));if(ci[k]>=0)hit++}
+    if(REQUIRED.every(k=>ci[k]>=0))return{hi:r,ci,hit};
+  }
+  return null;
+}
+function buildLeads(rows,hi,ci){
+  const out=[];
+  for(let r=hi+1;r<rows.length;r++){
+    const row=rows[r];if(!row||!row.some(v=>v!=null&&String(v).trim()!==''))continue;
+    const g=k=>ci[k]>=0?row[ci[k]]:null;
+    const rawNome=g('nome'),nomeTxt=str(rawNome);
+    const nomeOk=typeof rawNome==='string'&&!/^#/.test(nomeTxt)&&/\p{L}/u.test(nomeTxt);
+    const sit=str(g('sit')),corretor=str(g('corretor'))||'(sem corretor)',emp=str(g('emp'));
+    const tel=fmtTel(g('tel')),email=str(g('email'));
+    const l={
+      id:str(g('id')),sit,sk:norm(sit),cad:toDay(g('cad')),ent:toDay(g('ent')),nome:nomeOk?nomeTxt:'(sem nome)',nomeOk,
+      email,tel,emp,siglas:emp?[...new Set(emp.split(',').map(s=>s.trim()).filter(Boolean))]:[],
+      reserva:toNum(g('reserva'))||0,simul:toNum(g('simul'))||0,corretor,ck:norm(corretor),origem:str(g('origem'))||'(sem origem)',
+      inter:toDay(g('inter')),dias:toNum(g('dias')),mom:str(g('mom'))
+    };
+    l.hay=norm([l.id,l.nome,l.tel.replace(/\D/g,''),l.email,l.emp].join(' '));
+    out.push(l);
+  }
+  return out;
+}
+function loadTable(rows,sheetName,fileName,hdr){
+  const leads=buildLeads(rows,hdr.hi,hdr.ci);
+  if(!leads.length)throw new Error('A planilha foi lida, mas não tem nenhuma linha de dados abaixo do cabeçalho.');
+  let ref=null;const mm=String(sheetName||'').match(/^(20\d{2})(\d{2})(\d{2})/);
+  if(mm)ref=Math.floor(Date.UTC(+mm[1],+mm[2]-1,+mm[3])/86400000);
+  if(ref==null){for(const l of leads)for(const d of[l.cad,l.ent,l.inter])if(d!=null&&d<=todayDay()+1&&(ref==null||d>ref))ref=d}
+  const missing=Object.keys(COLS).filter(k=>hdr.ci[k]<0&&!REQUIRED.includes(k)).map(k=>COLS[k][0]);
+  S.m={leads,ref,fileName,sheetName,missing,sample:false};S.sample=false;S.ex={};
+  recompute();
+}
+
+/* ============ modelo ============ */
+function stats(arr){
+  const s={n:arr.length,a15:0,a30:0,a36:0,sk:{},sit:{},orig:{},emp:{},mom:{},bins:[0,0,0,0,0],
+    semInter:0,semEmp:0,semMom:0,semTel:0,semEmail:0,semNome:0,comReserva:0,comSimul:0,diasNull:0};
+  for(const l of arr){
+    const d=l.dias;
+    if(d==null)s.diasNull++;else{
+      if(d>15)s.a15++;if(d>30)s.a30++;if(d>36)s.a36++;
+      s.bins[d<=7?0:d<=15?1:d<=30?2:d<=36?3:4]++;
+    }
+    s.sk[l.sk]=(s.sk[l.sk]||0)+1;if(!s.sit[l.sk])s.sit[l.sk]=l.sit;
+    s.orig[l.origem]=(s.orig[l.origem]||0)+1;
+    if(l.eps.length)for(const g of l.eps)s.emp[g]=(s.emp[g]||0)+1;else if(!l.siglas.length)s.emp['Sem empreendimento']=(s.emp['Sem empreendimento']||0)+1;
+    const mo=l.mom||'Não classificado';s.mom[mo]=(s.mom[mo]||0)+1;
+    if(l.inter==null)s.semInter++;
+    if(!l.siglas.length)s.semEmp++;
+    if(!l.mom)s.semMom++;
+    if(!l.tel)s.semTel++;
+    if(!l.email)s.semEmail++;
+    if(!l.nomeOk)s.semNome++;
+    if(l.reserva>0)s.comReserva++;
+    if(l.simul>0)s.comSimul++;
+  }
+  return s;
+}
+const K=(s,k)=>s.sk[k]||0;
+function recompute(){
+  const m=S.m,distKey=norm(S.settings.dist),team=S.sample?S.sampleTeam:new Set(S.settings.team);
+  const map=new Map(),rs=S.sample?null:empResolver();
+  for(const l of m.leads){
+    l.g=l.ck===distKey?'dist':(team.has(l.ck)||team.has(nickKey(l.ck)))?'equipe':'fora';
+    l.eps=[...new Set(l.siglas.map(g=>rs?rs.get(ekey(g)):g).filter(Boolean))];
+    l.empShow=l.eps.length?l.eps.join(', '):l.emp;
+    l.hay=norm([l.id,l.nome,l.tel.replace(/\D/g,''),l.email,l.emp,l.eps.join(' ')].join(' '));
+    let b=map.get(l.ck);if(!b){b={ck:l.ck,raw:l.corretor,leads:[]};map.set(l.ck,b)}b.leads.push(l);
+  }
+  const used=new Set();
+  m.brokers=[...map.values()].sort((a,b)=>a.raw.localeCompare(b.raw,'pt-BR')).map(b=>{
+    const g=b.leads[0].g,pn=g==='dist'?{full:'Carteira de distribuição',nick:'Distribuição'}:parseName(b.raw);
+    let slug='c-'+(slugify(pn.nick)||'x'),i=2;while(used.has(slug))slug='c-'+slugify(pn.nick)+'-'+i++;used.add(slug);
+    return{ck:b.ck,raw:b.raw,leads:b.leads,g,full:pn.full,nick:pn.nick,slug,st:stats(b.leads)};
+  });
+  m.team=m.brokers.filter(b=>b.g==='equipe').sort((a,b)=>b.leads.length-a.leads.length);
+  m.fora=m.brokers.filter(b=>b.g==='fora').sort((a,b)=>b.leads.length-a.leads.length);
+  m.dist=m.brokers.find(b=>b.g==='dist')||null;
+  m.distLeads=m.leads.filter(l=>l.g==='dist');
+  m.teamLeads=m.leads.filter(l=>l.g==='equipe');
+  m.foraLeads=m.leads.filter(l=>l.g==='fora');
+  m.all=stats(m.leads);m.teamSt=stats(m.teamLeads);m.distSt=stats(m.distLeads);m.foraSt=stats(m.foraLeads);
+  const ids=m.leads.map(l=>l.id).filter(Boolean);
+  m.idBlank=m.leads.length-ids.length;m.dup=ids.length-new Set(ids).size;
+  m.brokerByCk=new Map(m.brokers.map(b=>[b.ck,b]));
+  const rngOf=k=>{let lo=null,hi=null;for(const l of m.leads){const d=l[k];if(d==null)continue;if(lo==null||d<lo)lo=d;if(hi==null||d>hi)hi=d}return[lo,hi]};
+  m.cadR=rngOf('cad');m.entR=rngOf('ent');
+  const em=new Map();
+  const unk=new Map();
+  if(rs)for(const l of m.leads)for(const g of l.siglas){const k=ekey(g);if(!rs.has(k)){const u=unk.get(k)||{label:g,n:0};u.n++;unk.set(k,u)}}
+  m.unk=[...unk.values()].sort((a,b)=>b.n-a.n);
+  m.semLista=m.leads.filter(l=>l.siglas.length&&!l.eps.length).length;
+  for(const l of m.leads)for(const g of(l.eps.length?l.eps:(l.siglas.length?[]:['Sem empreendimento']))){let a=em.get(g);if(!a)em.set(g,a=[]);a.push(l)}
+  const usedE=new Set();
+  m.emps=[...em].sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],'pt-BR')).map(([raw,leads])=>{
+    const base='e-'+(slugify(raw)||'x');let slug=base,i=2;while(usedE.has(slug))slug=base+'-'+i++;usedE.add(slug);
+    return{ck:raw,raw,leads,g:'emp',full:raw,nick:raw,slug,st:stats(leads)};
+  });
+  m.empBy=new Map(m.emps.map(e=>[e.raw,e]));
+  m.multi=m.leads.filter(l=>l.eps.length>1).length;
+  for(const l of m.leads)l.p=l.g==='dist'?prioOf(l):'';
+}
+
+/* ============ componentes ============ */
+const sevOf=d=>d==null?'':d>36?'36':d>30?'30':d>15?'15':'';
+function kpi(o){
+  const inner=`<div class="kpi-l">${o.sev?`<i class="sev sev-${o.sev}"></i>`:''}${esc(o.label)}</div><div class="kpi-v">${o.value}</div><div class="kpi-s">${o.sub||''}</div>`;
+  if(o.href)return`<a class="kpi kpi-link" href="${o.href}"${o.preset?` data-preset="${esc(JSON.stringify(o.preset))}"`:''}>${inner}</a>`;
+  if(o.act)return`<button type="button" class="kpi kpi-link" data-act="${o.act}" data-ex="${esc(o.ex)}" data-f="${o.f}" data-v="${esc(o.v)}">${inner}</button>`;
+  return`<div class="kpi">${inner}</div>`;
+}
+function bars(items,o={}){
+  const mx=o.max||Math.max(1,...items.map(i=>i.value));
+  return'<div class="bars">'+items.map(i=>{
+    const w=i.value/mx*100;
+    const inner=`<div class="blab" title="${esc(i.label)}">${esc(i.label)}</div><div class="btrack">${i.value>0?`<div class="bar" style="width:${w}%;background:${i.color||'var(--s1)'}"></div>`:''}</div><div class="bval">${n0(i.value)}${o.total?`<span class="bpct">${pct(i.value,o.total)}</span>`:''}</div>`;
+    const t=esc(i.title||`${i.label}: ${n0(i.value)}${o.total?' ('+pct(i.value,o.total)+')':''}`);
+    return i.href?`<a class="brow" href="${i.href}" title="${t}">${inner}</a>`:`<div class="brow" title="${t}">${inner}</div>`;
+  }).join('')+'</div>';
+}
+function sitItems(st){
+  const keys=Object.keys(st.sk);
+  const ord=k=>{const i=SIT_ORDER.findIndex(s=>norm(s)===k);return i<0?99:i};
+  return keys.sort((a,b)=>ord(a)-ord(b)||st.sk[b]-st.sk[a]).map(k=>({label:st.sit[k],value:st.sk[k]}));
+}
+function topItems(map,n,restLabel){
+  const e=Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  const top=e.slice(0,n).map(([label,value])=>({label,value}));
+  const rest=e.slice(n).reduce((s,x)=>s+x[1],0);
+  if(rest>0)top.push({label:restLabel+' ('+(e.length-n)+')',value:rest,color:'var(--line2)'});
+  return top;
+}
+function stackBar(segs,total){
+  const live=segs.filter(s=>s.v>0);
+  return`<div class="stackbar" role="img" aria-label="${esc(segs.map(s=>s.l+': '+n0(s.v)).join('; '))}">`+
+    live.map(s=>`<i style="flex:${s.v} 1 0;background:${s.c}" title="${esc(s.l+': '+n0(s.v)+' ('+pct(s.v,total)+')')}"></i>`).join('')+'</div>'+
+    '<div class="legend">'+segs.map(s=>`<span class="lg"><i style="background:${s.c}"></i>${esc(s.l)} <b class="num">${n0(s.v)}</b><span class="muted">${pct(s.v,total)}</span></span>`).join('')+'</div>';
+}
+function qualityRows(st,nTotal){
+  const r=[['Sem primeira interação',st.semInter,'O campo vazio não prova que o lead não foi atendido.'],
+    ['Sem empreendimento',st.semEmp,'Vieram sem empreendimento específico.'],
+    ['Sem momento do lead',st.semMom,'Classificação (Frio, Morno, Quente) incompleta.'],
+    ['Sem telefone',st.semTel,'Sem número para contato.'],['Sem e-mail',st.semEmail,''],
+    ['Nome ausente ou inválido',st.semNome,'Revisar cadastro.']];
+  return r.map(x=>`<tr><td>${x[0]}</td><td class="r">${x[1]?n0(x[1]):'<span class="muted">nenhum</span>'}</td><td class="r muted">${x[1]?pct(x[1],nTotal):''}</td><td class="muted">${x[2]}</td></tr>`).join('');
+}
+
+/* ============ visões ============ */
+function viewPainel(){
+  const m=S.m,a=m.all,n=a.n;
+  const P=(o)=>({band:'',sit:'',group:'',broker:'',emp:'',q:'',...o});
+  const tiles1=[
+    kpi({label:'Leads na base',value:n0(n),sub:'total da exportação'}),
+    kpi({label:'Equipe',value:n0(m.teamSt.n),sub:`${m.team.length} corretores · ${pct(m.teamSt.n,n)}`,href:'#corretores'}),
+    kpi({label:'Carteira de distribuição',value:n0(m.distSt.n),sub:`${pct(m.distSt.n,n)} da base`,href:'#distribuicao'}),
+    kpi({label:'Fora da equipe',value:n0(m.foraSt.n),sub:`${m.fora.length} corretor${m.fora.length===1?'':'es'}`}),
+    kpi({label:'Visita realizada',value:n0(K(a,SK.VR)),sub:'situação atual do lead',href:'#alertas',preset:P({sit:K(a,SK.VR)?a.sit[SK.VR]:''})}),
+    kpi({label:'Venda realizada',value:n0(K(a,SK.VD)),sub:'situação atual do lead',href:'#alertas',preset:P({sit:K(a,SK.VD)?a.sit[SK.VD]:''})})
+  ].join('');
+  const agLabel=a.sit[SK.AG]||'Aguardando Atendimento';
+  const tiles2=[
+    kpi({label:'Acima de 15 dias',sev:'15',value:n0(a.a15),sub:pct(a.a15,n)+' da base',href:'#alertas',preset:P({band:'15'})}),
+    kpi({label:'Acima de 30 dias',sev:'30',value:n0(a.a30),sub:pct(a.a30,n)+' da base',href:'#alertas',preset:P({band:'30'})}),
+    kpi({label:'Acima de 36 dias',sev:'36',value:n0(a.a36),sub:pct(a.a36,n)+' da base',href:'#alertas',preset:P({band:'36'})}),
+    kpi({label:'Aguardando Atendimento',value:n0(K(a,SK.AG)),sub:`${n0(K(m.distSt,SK.AG))} na carteira de distribuição`,href:'#alertas',preset:P({sit:agLabel})})
+  ].join('');
+  const grp=(g,st)=>({g,st});
+  const G=[grp('Equipe',m.teamSt),grp('Distribuição',m.distSt),grp('Fora da equipe',m.foraSt)];
+  const alertTbl=`<div class="tw"><table class="tbl"><thead><tr><th>Faixa</th>${G.map(x=>`<th class="r">${x.g}</th>`).join('')}<th class="r">Total</th></tr></thead><tbody>`+
+    BANDS.map(t=>{const k='a'+t;return`<tr><td><span class="dias"><i class="sev sev-${t}"></i>Acima de ${t} dias</span></td>${G.map(x=>`<td class="r">${n0(x.st[k])}</td>`).join('')}<td class="r"><a href="#alertas" data-preset="${esc(JSON.stringify(P({band:String(t)})))}">${n0(a[k])}</a></td></tr>`}).join('')+
+    '</tbody></table></div>';
+  const rank=m.team.map(b=>({label:b.nick,value:b.st.n,href:'#'+b.slug,title:`${b.full}: ${n0(b.st.n)} leads · ${n0(b.st.a15)} acima de 15 dias · ${n0(b.st.a36)} acima de 36`}));
+  const foraBlock=m.fora.length?`<details class="panel"><summary>Fora da equipe: ${m.fora.length} corretor${m.fora.length===1?'':'es'}, ${n0(m.foraSt.n)} leads</summary>
+    <p class="hint">Não entram no ranking da equipe. Se alguém desta lista faz parte da equipe, ajuste em Configurações.</p>
+    <div class="tw"><table class="tbl"><tbody>${m.fora.map(b=>`<tr><td><a class="nm" href="#${b.slug}">${esc(b.nick)}</a><small>${esc(b.full)}</small></td><td class="r">${n0(b.st.n)} leads</td></tr>`).join('')}</tbody></table></div></details>`:'';
+  const empPanel=m.emps.length?`<section class="panel" style="margin-top:16px"><h2>Empreendimentos com mais leads</h2><p class="hint">Um lead com mais de um empreendimento conta em cada um. Clique no nome para abrir a ficha.</p>${bars(m.emps.slice(0,8).map(e=>({label:e.nick,value:e.st.n,href:'#'+e.slug})),{total:n})}
+    <p class="note"><a href="#empreendimentos">Ver todos os empreendimentos</a></p></section>`:'';
+  return`
+  <div class="row-head"><div><h1>Painel geral</h1><p class="sub">Visão da exportação inteira: carteiras, situação dos leads, alertas de inatividade e qualidade dos dados.</p></div></div>
+  ${cmpStrip()}
+  <div class="kpis">${tiles1}</div>
+  <div class="sec-l">Alertas de inatividade</div>
+  <div class="kpis">${tiles2}</div>
+  <div class="grid2" style="margin-top:16px">
+    <section class="panel"><h2>Situação dos leads</h2><p class="hint">Situação atual no CRM, não resultado do mês.</p>${bars(sitItems(a),{total:n})}</section>
+    <section class="panel"><h2>Carteiras</h2><p class="hint">Quem responde por cada lead da exportação.</p>
+      ${stackBar([{l:'Equipe',v:m.teamSt.n,c:'var(--s1)'},{l:'Distribuição',v:m.distSt.n,c:'var(--s2)'},{l:'Fora da equipe',v:m.foraSt.n,c:'var(--s3)'}],n)}
+      <h2 style="margin-top:18px">Alertas por carteira</h2><p class="hint">As faixas são cumulativas: um lead acima de 36 dias também está acima de 30 e de 15.</p>${alertTbl}</section>
+  </div>
+  <section class="panel" style="margin-top:16px"><h2>Leads por corretor</h2><p class="hint">Só a equipe. Clique no nome para abrir a ficha do corretor.</p>${bars(rank)}
+    <p class="note"><a href="#corretores">Ver tabela completa dos corretores</a></p></section>
+  ${empPanel}
+  <div class="stack-v" style="margin-top:16px">
+    ${foraBlock}
+    <section class="panel"><h2>Qualidade dos dados</h2><p class="hint">Campos vazios ou inconsistentes nesta exportação.</p>
+      <div class="tw"><table class="tbl"><thead><tr><th>Verificação</th><th class="r">Leads</th><th class="r">% da base</th><th>Observação</th></tr></thead><tbody>${qualityRows(a,n)}
+      <tr><td>IDs duplicados</td><td class="r">${m.dup?n0(m.dup):'<span class="muted">nenhum</span>'}</td><td class="r"></td><td class="muted">${m.dup?'Revisar a exportação.':'Cada lead aparece uma vez.'}</td></tr>
+      <tr><td>IDs em branco</td><td class="r">${m.idBlank?n0(m.idBlank):'<span class="muted">nenhum</span>'}</td><td class="r"></td><td></td></tr></tbody></table></div>
+      ${m.missing.length?`<p class="note">Colunas que não vieram nesta planilha: ${esc(m.missing.join(', '))}.</p>`:''}</section>
+    <details class="panel"><summary>Como ler estes números</summary>
+      <ul class="rules">
+        <li>As faixas de 15, 30 e 36 dias usam o campo <b>Dias sem contato</b> do CRM e contam leads com mais dias do que o limite. A exportação não traz a data do último contato, então é um alerta provisório.</li>
+        <li>A carteira de distribuição reúne os leads ainda sem corretor da equipe e não entra no ranking individual.</li>
+        <li>Visitas e vendas mostram a situação atual do lead, não o total do mês.</li>
+        <li>Esta exportação não permite verificar ligações por dia, indicações por semana, presença ou escalas.</li>
+        <li>Cada planilha carregada entra no histórico deste navegador, só com os totais. A aba Histórico compara duas exportações.</li>
+      </ul></details>
+  </div>`;
+}
+
+function corrRow(b){const s=b.st;return{b,name:b.nick,leads:s.n,dist:b.g==='emp'?b.leads.filter(l=>l.g==='dist').length:0,a15:s.a15,a30:s.a30,a36:s.a36,p15:s.n?s.a15/s.n:0,emAt:K(s,SK.EA),visR:K(s,SK.VR),venda:K(s,SK.VD),semInter:s.semInter}}
+function corrTable(rows,withFoot,o={}){
+  const H=[['name',o.first||'Corretor'],['leads','Leads',1]].concat(o.dist?[['dist','Na distribuição',1]]:[]).concat([['a15','Acima de 15',1],['a30','Acima de 30',1],['a36','Acima de 36',1],['p15','% acima de 15',1],['emAt','Em atendimento',1],['visR','Visita realizada',1],['venda','Venda realizada',1],['semInter','Sem 1ª interação',1]]);
+  const col=H.some(h=>h[0]===S.sort.col)?S.sort.col:'leads',dir=S.sort.dir;
+  rows=rows.slice().sort((x,y)=>{const a=x[col],b=y[col];const c=typeof a==='string'?a.localeCompare(b,'pt-BR'):a-b;return(c||y.leads-x.leads)*dir});
+  const mx=k=>Math.max(1,...rows.map(r=>r[k]));
+  const m15=mx('a15'),m30=mx('a30'),m36=mx('a36');
+  const th=H.map(h=>`<th class="${h[2]?'r':''}" aria-sort="${col===h[0]?(dir>0?'ascending':'descending'):'none'}"><button type="button" data-act="sort" data-v="${h[0]}">${h[1]}</button></th>`).join('');
+  const cb=(v,max,sev)=>`<span class="cellbar">${n0(v)}${v>0?`<i class="sev-${sev}" style="width:${Math.max(6,v/max*100)}%"></i>`:''}</span>`;
+  const body=rows.map(r=>`<tr><td><a class="nm" href="#${r.b.slug}">${esc(r.b.nick)}</a>${o.dist?'':`<small>${esc(r.b.full)}</small>`}</td><td class="r">${n0(r.leads)}</td>${o.dist?`<td class="r">${n0(r.dist)}</td>`:''}<td class="r">${cb(r.a15,m15,'15')}</td><td class="r">${cb(r.a30,m30,'30')}</td><td class="r">${cb(r.a36,m36,'36')}</td><td class="r">${pct(r.a15,r.leads)}</td><td class="r">${n0(r.emAt)}</td><td class="r">${n0(r.visR)}</td><td class="r">${n0(r.venda)}</td><td class="r">${n0(r.semInter)}</td></tr>`).join('');
+  let foot='';
+  if(withFoot){const t=rows.reduce((a,r)=>({leads:a.leads+r.leads,a15:a.a15+r.a15,a30:a.a30+r.a30,a36:a.a36+r.a36,emAt:a.emAt+r.emAt,visR:a.visR+r.visR,venda:a.venda+r.venda,semInter:a.semInter+r.semInter}),{leads:0,a15:0,a30:0,a36:0,emAt:0,visR:0,venda:0,semInter:0});
+    foot=`<tfoot><tr><td>Total da equipe</td><td class="r">${n0(t.leads)}</td>${o.dist?'<td></td>':''}<td class="r">${n0(t.a15)}</td><td class="r">${n0(t.a30)}</td><td class="r">${n0(t.a36)}</td><td class="r">${pct(t.a15,t.leads)}</td><td class="r">${n0(t.emAt)}</td><td class="r">${n0(t.visR)}</td><td class="r">${n0(t.venda)}</td><td class="r">${n0(t.semInter)}</td></tr></tfoot>`}
+  return`<div class="tw"><table class="tbl"><thead><tr>${th}</tr></thead><tbody>${body}</tbody>${foot}</table></div>`;
+}
+function viewCorretores(){
+  const m=S.m,d=m.dist;
+  return`<div class="row-head"><div><h1>Corretores</h1><p class="sub">Clique no nome de um corretor para abrir a ficha completa. Clique no título de uma coluna para ordenar.</p></div></div>
+  ${d?`<a class="callout" href="#distribuicao" style="margin-bottom:16px"><div><b>Carteira de distribuição</b><span class="m">${n0(d.st.n)} leads ainda sem corretor · ${n0(d.st.a15)} acima de 15 dias · ${n0(d.st.a36)} acima de 36. Não entra no ranking.</span></div><span class="go">Abrir carteira →</span></a>`:''}
+  <section class="panel"><h2>Equipe</h2><p class="hint">${m.team.length} corretores. As faixas de dias são cumulativas.</p>${m.team.length?corrTable(m.team.map(corrRow),true):'<div class="empty">Nenhum corretor da equipe nesta planilha. Confira em Configurações.</div>'}</section>
+  ${m.fora.length?`<section class="panel" style="margin-top:16px"><h2>Fora da equipe</h2><p class="hint">Aparecem na exportação, mas não entram no ranking da equipe.</p>${corrTable(m.fora.map(corrRow),false)}</section>`:''}`;
+}
+
+/* ---- triagem P1 a P4 da carteira de distribuição (regra deduzida dos números do dashboard de 26/10) ---- */
+const PRIO=[
+  ['1','P1','Revisão imediata','Aguardando Atendimento ou Visita Realizada.'],
+  ['2','P2','Revisão prioritária','Em atendimento, ou Tentativa de Contato sem primeira interação ou sem empreendimento.'],
+  ['3','P3','Preventiva','Tentativa de Contato com dados completos e mais de 15 dias sem contato.'],
+  ['4','P4','Rotina','Dados completos (primeira interação e empreendimento) e até 15 dias sem contato.']
+];
+function prioOf(l){
+  if(l.sk===SK.AG||l.sk===SK.VR)return'1';
+  const completo=l.inter!=null&&l.siglas.length>0;
+  if(l.dias!=null&&l.dias<=15&&completo)return'4';
+  if(l.sk===SK.TC&&completo)return'3';
+  return'2';
+}
+function prioPanel(){
+  const L=S.m.distLeads;
+  const rows=PRIO.map(p=>{const x=L.filter(l=>l.p===p[0]);
+    return`<tr><td><b>${p[1]}</b> · ${p[2]}<small>${p[3]}</small></td><td class="r">${n0(x.length)}</td><td class="r">${n0(x.filter(l=>l.dias>30).length)}</td><td class="r">${n0(x.filter(l=>l.dias>36).length)}</td><td class="r"><button type="button" class="btn" data-act="exband" data-ex="distribuicao" data-f="prio" data-v="${p[0]}">Ver lista</button></td></tr>`}).join('');
+  return`<section class="panel"><h2>Triagem da carteira (P1 a P4)</h2><p class="hint">Ordem sugerida para revisar os leads antes de distribuir.</p>
+    <div class="tw"><table class="tbl"><thead><tr><th>Prioridade</th><th class="r">Registros</th><th class="r">Acima de 30</th><th class="r">Acima de 36</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="note">Critérios deduzidos dos números do dashboard de 26/10/2026 (227, 137, 195 e 337 leads), que não traz a regra escrita. Confirmar com o Evandro antes de usar para decidir.</p></section>`;
+}
+
+/* ---- ficha: corretor, carteira de distribuição ou empreendimento ---- */
+function viewFicha(b,kind){
+  const m=S.m,st=b.st,n=st.n,tm=m.teamSt,isDist=kind==='dist',isEmp=kind==='emp',key=isDist?'distribuicao':b.slug;
+  exInit(key,b.leads,isDist?{title:'Leads da carteira',showEmp:true,showSit:true,showPrio:true}
+    :isEmp?{title:'Leads de '+b.nick,showGroup:true,showBroker:true,showSit:true}
+    :{title:'Leads de '+b.nick,showEmp:true,showSit:true});
+  const un=isEmp?'dos leads':'da carteira';
+  const share=(a,x)=>`${pct(a,n)} ${un}`+(kind==='broker'&&b.g==='equipe'?` · equipe ${pct(x,tm.n)}`:'');
+  const T=(sev,label,val,x)=>kpi({label,sev,value:n0(val),sub:share(val,x),act:'exband',ex:key,f:'band',v:sev});
+  const kp=[
+    kpi({label:'Leads',value:n0(n),sub:isDist||isEmp?`${pct(n,m.all.n)} da base`:b.g==='equipe'?`${pct(n,tm.n)} da equipe`:'fora da equipe'}),
+    T('15','Acima de 15 dias',st.a15,tm.a15),T('30','Acima de 30 dias',st.a30,tm.a30),T('36','Acima de 36 dias',st.a36,tm.a36),
+    kpi({label:'Aguardando Atendimento',value:n0(K(st,SK.AG)),sub:pct(K(st,SK.AG),n)+' '+un}),
+    kpi({label:'Em atendimento',value:n0(K(st,SK.EA)),sub:pct(K(st,SK.EA),n)+' '+un}),
+    kpi({label:'Visita realizada',value:n0(K(st,SK.VR)),sub:'situação atual'}),
+    kpi({label:'Venda realizada',value:n0(K(st,SK.VD)),sub:'situação atual'}),
+    kpi({label:'Leads com reserva',value:n0(st.comReserva),sub:'campo Reserva maior que 0'}),
+    kpi({label:'Leads com simulação',value:n0(st.comSimul),sub:'campo Simulação maior que 0'})
+  ].join('');
+  const bins=BIN_LABELS.map((l,i)=>({label:l,value:st.bins[i],color:BIN_SEV[i]?`var(--${BIN_SEV[i]==='15'?'warn':BIN_SEV[i]==='30'?'serious':'crit'})`:'var(--s1)'}));
+  const MOMS=['Quente','Morno','Frio','Não classificado'];
+  const mom=MOMS.filter(k=>st.mom[k]).map(k=>({label:k,value:st.mom[k]}));
+  Object.keys(st.mom).forEach(k=>{if(!MOMS.includes(k))mom.push({label:k,value:st.mom[k]})});
+  const empItems=topItems(st.emp,8,'Outros empreendimentos').map(i=>{const e=m.empBy.get(i.label);return e?{...i,href:'#'+e.slug}:i});
+  let rightPanel;
+  if(isEmp){
+    const bc=new Map();for(const l of b.leads)bc.set(l.ck,(bc.get(l.ck)||0)+1);
+    let bi=[...bc].map(([ck,v])=>{const x=m.brokerByCk.get(ck);return{label:x.g==='dist'?'Distribuição':x.nick,value:v,href:x.g==='dist'?'#distribuicao':'#'+x.slug}}).sort((p,q)=>q.value-p.value);
+    if(bi.length>12){const rest=bi.slice(12).reduce((s,x)=>s+x.value,0);bi=bi.slice(0,12).concat([{label:'Outros ('+(bi.length-12)+')',value:rest,color:'var(--line2)'}])}
+    rightPanel=`<section class="panel"><h2>Corretores</h2><p class="hint">Quem responde pelos leads deste empreendimento. Clique para abrir a ficha.</p>${bars(bi,{total:n})}</section>`;
+  }else rightPanel=`<section class="panel"><h2>Empreendimentos</h2><p class="hint">Um lead com mais de um empreendimento conta em cada um.</p>${bars(empItems,{total:n})}</section>`;
+  let over='';
+  if(isDist){
+    const L=m.distLeads,row=(label,f)=>{const x=L.filter(f);return`<tr><td>${label}</td><td class="r">${n0(x.length)}</td><td class="r">${n0(x.filter(l=>l.dias>30).length)}</td><td class="r">${n0(x.filter(l=>l.dias>36).length)}</td></tr>`};
+    const a36=L.filter(l=>l.dias>36),a36ag=a36.filter(l=>l.sk===SK.AG).length;
+    over=`<section class="panel"><h2>Sobreposições</h2><p class="hint">Leads da carteira que reúnem mais de um problema.</p>
+      <div class="tw"><table class="tbl"><thead><tr><th>Situação</th><th class="r">Total</th><th class="r">Acima de 30</th><th class="r">Acima de 36</th></tr></thead><tbody>
+      ${row('Aguardando Atendimento',l=>l.sk===SK.AG)}${row('Sem empreendimento',l=>!l.siglas.length)}${row('Sem primeira interação',l=>l.inter==null)}
+      ${row('Situação avançada (além de Tentativa e Aguardando)',l=>l.sk!==SK.AG&&l.sk!==SK.TC)}</tbody></table></div>
+      ${a36.length?`<p class="note">${n0(a36ag)} de ${n0(a36.length)} leads acima de 36 dias estão em Aguardando Atendimento.</p>`:''}</section>`;
+  }
+  let sel;
+  if(isEmp){
+    const list=m.emps.slice().sort((x,y)=>x.nick.localeCompare(y.nick,'pt-BR'));
+    sel=`<label class="muted">Ir para <select data-act-change="jump" aria-label="Ir para outro empreendimento">${list.map(x=>`<option value="${x.slug}"${x.slug===key?' selected':''}>${esc(x.nick)}</option>`).join('')}</select></label>`;
+  }else{
+    const nav=m.brokers.slice().sort((x,y)=>(x.g==='dist'?-1:y.g==='dist'?1:0)||x.nick.localeCompare(y.nick,'pt-BR'));
+    sel=`<label class="muted">Ir para <select data-act-change="jump" aria-label="Ir para outro corretor">${nav.map(x=>{const h=x.g==='dist'?'distribuicao':x.slug;return`<option value="${h}"${h===key?' selected':''}>${esc(x.g==='dist'?'Carteira de distribuição':x.nick)}</option>`}).join('')}</select></label>`;
+  }
+  const badge=b.g==='equipe'?'Equipe':'Fora da equipe';
+  const subline=isDist?'Leads que ainda precisam ser distribuídos para a equipe.'
+    :isEmp?(b.raw==='Sem empreendimento'?'Leads que vieram sem empreendimento específico.':'<span class="pill">Empreendimento</span> Leads de todas as carteiras que citam este empreendimento, inclusive pela sigla.')
+    :`${esc(b.full)} <span class="pill">${badge}</span>`;
+  return`<div class="crumbs"><a href="${isEmp?'#empreendimentos':'#corretores'}">${isEmp?'← Empreendimentos':'← Corretores'}</a>${sel}</div>
+  <div class="row-head"><div><h1>${esc(isDist?'Carteira de distribuição':b.nick)}</h1><p class="sub">${subline}</p></div></div>
+  ${n===0?'<div class="panel empty">Nenhum lead nesta carteira na planilha atual.</div>':`
+  <div class="kpis">${kp}</div>
+  <div class="grid2" style="margin-top:16px">
+    <section class="panel"><h2>Situação dos leads</h2>${bars(sitItems(st),{total:n})}</section>
+    <section class="panel"><h2>Dias sem contato</h2><p class="hint">Aqui as faixas são exclusivas. Nos alertas elas são cumulativas.</p>${bars(bins,{total:n})}</section>
+    <section class="panel"><h2>Origem</h2>${bars(topItems(st.orig,7,'Outras origens'),{total:n})}</section>
+    ${rightPanel}
+    <section class="panel"><h2>Momento do lead</h2>${bars(mom,{total:n})}</section>
+    <section class="panel"><h2>Qualidade ${isEmp?'dos leads':'da carteira'}</h2><div class="tw"><table class="tbl"><tbody>${qualityRows(st,n).replace(/<td class="muted">[^<]*<\/td>/g,'')}</tbody></table></div></section>
+  </div>
+  ${isDist?`<div class="stack-v" style="margin-top:16px">${prioPanel()}${over}</div>`:''}
+  <div style="margin-top:16px">${exHTML(key)}</div>`}`;
+}
+
+/* ---- empreendimentos ---- */
+function viewEmpreendimentos(){
+  const m=S.m;
+  const out=m.unk.length?`<p class="note">Ficam de fora desta tabela, por não estarem na lista de empreendimentos: ${m.unk.map(u=>esc(u.label)+' ('+n0(u.n)+')').join(', ')}.${m.semLista?` ${n0(m.semLista)} lead${m.semLista===1?' traz':'s trazem'} só nomes assim.`:''} Se algum for um empreendimento atual, ligue a sigla ao nome em Configurações.</p>`:'';
+  return`<div class="row-head"><div><h1>Empreendimentos</h1><p class="sub">Cada empreendimento aparece com o nome completo, já somadas as siglas do CRM. Clique em um nome para ver os leads, os corretores e os alertas dele.</p></div></div>
+  <section class="panel"><h2>Leads por empreendimento</h2><p class="hint">Um lead com mais de um empreendimento conta em cada um deles, então a soma passa do total de leads. ${n0(m.multi)} leads têm mais de um. As faixas de dias são cumulativas.</p>${corrTable(m.emps.map(corrRow),false,{first:'Empreendimento',dist:true})}${out}</section>`;
+}
+
+/* ---- relatório em texto ---- */
+const joinPt=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' e '+a[a.length-1];
+function buildReport(){
+  const m=S.m,a=m.all,n=a.n,T=m.teamSt,D=m.distSt,F=m.foraSt,old=m.ref!=null?todayDay()-m.ref:0;
+  const B=[],push=o=>B.push(o),p=x=>push({t:'p',x}),h2=x=>push({t:'h2',x}),h3=x=>push({t:'h3',x});
+  const rng=r=>r[0]==null?'—':fmtDay(r[0])+' a '+fmtDay(r[1]);
+  push({t:'title',x:'Relatório Gerencial SKR | Equipe Evandro'});
+  push({t:'meta',x:['Exportação '+fmtDay(m.ref),'Somente leitura','Arquivo de origem: '+m.fileName+(m.sheetName?' ('+m.sheetName+')':''),'Gerado em '+fmtDay(todayDay())]});
+  if(m.sample)p('Atenção: este relatório foi montado com dados de exemplo e não tem relação com a operação real.');
+  if(m.fora.length)p(`Corretores fora da equipe (${m.fora.length}): ${joinPt(m.fora.map(b=>b.nick))}. Ficam excluídos dos indicadores e rankings individuais da equipe.`);
+
+  h2('1. Diagnóstico da qualidade dos dados');
+  const kv=[['Total da exportação',n0(n)+' registros'],['IDs duplicados',n0(m.dup),m.dup?'Revisar a exportação':'Integridade confirmada'],
+    ['Sem primeira interação',n0(a.semInter),pct(a.semInter,n)+' da exportação'],['Sem momento do lead',n0(a.semMom),pct(a.semMom,n)+' da exportação'],
+    ['Sem empreendimento',n0(a.semEmp)+' registros'],['Sem e-mail',n0(a.semEmail)+' registros'],['Sem telefone',n0(a.semTel)+' registros']];
+  if(a.semNome)kv.push(['Nome ausente ou inválido',n0(a.semNome)+' registros']);
+  kv.push(['Cadastros',rng(m.cadR)],['Últimas entradas',rng(m.entR)]);
+  push({t:'kv',rows:kv});
+  if(m.unk.length)p('Nomes de empreendimento fora da lista oficial, que ficam fora da análise por empreendimento: '+m.unk.map(u=>u.label+' ('+n0(u.n)+')').join(', ')+'.');
+  p('Histórico de ligações, propostas e plantões: não disponível nesta exportação.');
+  p('O campo Dias sem contato está preenchido, mas a exportação não traz a data do último contato efetivo para conferir seus valores. Por isso os alertas de inatividade são provisórios.');
+  if(m.missing.length)p('Colunas que não vieram nesta planilha: '+m.missing.join(', ')+'.');
+  p('Diagnóstico: a base é adequada para análise de carteiras, situações, origens e pendências, mas insuficiente para medir integralmente a produtividade comercial.');
+
+  h2('2. Resumo executivo — composição da base');
+  push({t:'kv',rows:[['Equipe',n0(T.n),m.team.length+' corretores'],['Distribuição',n0(D.n),'carteira separada'],['Fora da equipe',n0(F.n),'excluídos dos rankings']]});
+  p(`Os ${n0(T.n)} leads da equipe pertencem aos ${m.team.length} corretores integrantes. Os ${n0(D.n)} leads da distribuição e os ${n0(F.n)} dos corretores de fora não entram nos rankings individuais.`);
+
+  h2('3. Gestão de Leads');
+  h3('Indicadores de inatividade por carteira');
+  push({t:'tb',num:true,head:['Indicador','Equipe','Distribuição'],rows:[
+    ['Total de leads',n0(T.n),n0(D.n)],['Acima de 15 dias',n0(T.a15),n0(D.a15)],['Acima de 30 dias',n0(T.a30),n0(D.a30)],
+    ['Acima de 36 dias',n0(T.a36),n0(D.a36)],['Sem primeira interação',n0(T.semInter),n0(D.semInter)]]});
+  p('As faixas de 15, 30 e 36 dias são cumulativas. Os valores se baseiam no campo de inatividade da exportação.');
+  if(D.a30>T.a30)p(`A carteira de distribuição concentra ${n0(D.a30)} registros acima de 30 dias, mais do que os ${n0(T.a30)} identificados entre os corretores da equipe.`);
+  else if(T.a30>D.a30)p(`Entre os corretores da equipe há ${n0(T.a30)} registros acima de 30 dias, mais do que os ${n0(D.a30)} da carteira de distribuição.`);
+  if(D.n>0){
+    h3('Situação da carteira de distribuição');
+    push({t:'tb',head:['Situação','Leads'],rows:sitItems(D).map(i=>[i.label,n0(i.value)+' · '+pct(i.value,D.n)])});
+    h3('Pendências prioritárias da distribuição');
+    push({t:'kv',rows:[['Acima de 36 dias',n0(D.a36)],['Aguardando Atendimento',n0(K(D,SK.AG))],['Sem empreendimento',n0(D.semEmp)],['Sem primeira interação',n0(D.semInter)]]});
+    const l36=m.distLeads.filter(l=>l.dias>36),ag36=l36.filter(l=>l.sk===SK.AG).length,s36=l36.filter(l=>l.inter==null).length;
+    if(l36.length){
+      const quem=ag36===l36.length?(l36.length===1?'O único registro':`Todos os ${n0(l36.length)} registros`):`${n0(ag36)} dos ${n0(l36.length)} registros`;
+      p(`${quem} acima de 36 dias ${ag36===l36.length&&l36.length===1?'está':'estão'} em Aguardando Atendimento${s36?`, e ${n0(s36)} ${s36===1?'também não possui':'também não possuem'} data de primeira interação`:''}.`)}
+    h3('Triagem da carteira de distribuição (P1 a P4)');
+    push({t:'tb',num:true,head:['Prioridade','Registros'],rows:PRIO.map(q=>[q[1]+' — '+q[2].toLowerCase(),n0(m.distLeads.filter(l=>l.p===q[0]).length)])});
+    p('A lista de leads de cada prioridade está na aba Distribuição, com opção de copiar para planilha. Os critérios de P1 a P4 foram deduzidos dos números do dashboard de 26/10 e ainda precisam da confirmação do Evandro.');
+    p('Recomendação: revisar o histórico e a elegibilidade dos registros antes de qualquer redistribuição.');
+  }else p('A carteira de distribuição está vazia nesta exportação.');
+
+  h2('4. Produtividade Comercial');
+  h3('Indicadores individuais da equipe');
+  p(`Somente os ${m.team.length} corretores integrantes da equipe. A carteira de distribuição e os ${m.fora.length} corretores de fora não participam.`);
+  push({t:'tb',num:true,head:['Corretor','Leads','>15 dias','>30 dias','>36 dias','Em atendimento','Visita realizada','Venda realizada','Sem 1ª interação'],
+    rows:m.team.map(b=>[b.nick,n0(b.st.n),n0(b.st.a15),n0(b.st.a30),n0(b.st.a36),n0(K(b.st,SK.EA)),n0(K(b.st,SK.VR)),n0(K(b.st,SK.VD)),n0(b.st.semInter)]),
+    foot:['Total',n0(T.n),n0(T.a15),n0(T.a30),n0(T.a36),n0(K(T,SK.EA)),n0(K(T,SK.VR)),n0(K(T,SK.VD)),n0(T.semInter)]});
+  h3('Onde concentrar a gestão');
+  const seen=new Set(),ul=[],focus=[],ld=k=>k===1?'lead':'leads';
+  m.team.filter(b=>b.st.a36>=5).sort((x,y)=>y.st.a36-x.st.a36).slice(0,3).forEach(b=>{seen.add(b.ck);focus.push(b);
+    ul.push(`${b.nick} — ${n0(b.st.a36)} ${ld(b.st.a36)} acima de 36 dias, ${pct(b.st.a36,b.st.n)} da carteira. Exige validação das datas e do histórico de atendimento.`)});
+  m.team.filter(b=>!seen.has(b.ck)&&b.st.a30>=10).sort((x,y)=>y.st.a30-x.st.a30).slice(0,3).forEach(b=>{seen.add(b.ck);focus.push(b);
+    ul.push(`${b.nick} — ${n0(b.st.a30)} ${ld(b.st.a30)} acima de 30 dias em uma carteira de ${n0(b.st.n)}. Organizar uma revisão por empreendimento e situação, priorizando os registros mais antigos.`)});
+  m.team.filter(b=>!seen.has(b.ck)&&b.st.n>=50&&b.st.a15/b.st.n>=0.5).sort((x,y)=>y.st.a15/y.st.n-x.st.a15/x.st.n).slice(0,2).forEach(b=>{seen.add(b.ck);focus.push(b);
+    ul.push(`${b.nick} — ${pct(b.st.a15,b.st.n)} da carteira (${n0(b.st.a15)} de ${n0(b.st.n)}) acima de 15 dias. Investigar a cadência e a atualização do CRM, sem presumir ausência de trabalho.`)});
+  const si=m.team.filter(b=>b.st.semInter>0).sort((x,y)=>y.st.semInter-x.st.semInter).slice(0,3);
+  if(si.length)ul.push(`${joinPt(si.map(b=>b.nick))} — ${joinPt(si.map(b=>n0(b.st.semInter)))} registros sem primeira interação, respectivamente. Verificar se faltam lançamentos no sistema ou se há atendimentos pendentes.`);
+  if(ul.length)push({t:'ul',items:ul});else p('Nenhum corretor da equipe apresenta alertas relevantes nesta exportação.');
+  h3('Visitas e vendas');
+  p(`A exportação registra ${n0(K(T,SK.VR))} leads na situação Visita Realizada e ${n0(K(T,SK.VD))} na situação Venda Realizada entre os ${m.team.length} corretores da equipe.`);
+  p('Essas quantidades são situações atuais dos registros, não resultados do mês, porque a exportação não tem o histórico de mudanças de etapa. Não é possível calcular uma taxa confiável de conversão de visitas em vendas com esta base.');
+
+  h2('5. Regras Operacionais');
+  push({t:'tb',head:['Regra comercial','Verificação'],rows:[
+    ['80 ligações diárias','Sem histórico de ligações'],['1 indicação semanal','Sem identificação confiável de indicações'],
+    ['Atualização do CRM',`${n0(a.a36)} leads acima de 36 dias e ${n0(K(a,SK.AG))} em Aguardando Atendimento`],
+    ['Aguardando Atendimento',`${n0(K(D,SK.AG))} na distribuição e ${n0(K(T,SK.AG))} na equipe`],
+    ['Tentativa de Contato','Necessário verificar a evolução dos atendimentos'],['Presença nos plantões','Sem dados de escala e presença'],
+    ['Penalizações','Nenhuma recomendada sem comprovação']]});
+  const agTeam=m.team.filter(b=>K(b.st,SK.AG)>0);
+  if(agTeam.length)p(`Há registro em Aguardando Atendimento atribuído nominalmente a ${joinPt(agTeam.map(b=>b.nick))}. Vale verificar se é uma inconsistência de classificação.`);
+  p('Não há dados suficientes para concluir que algum corretor descumpriu as metas de ligações, indicações ou plantões.');
+
+  h2('6. Plano de ação gerencial');
+  const top=focus.slice(0,3);
+  const nP1=m.distLeads.filter(l=>l.p==='1').length;
+  push({t:'kv',rows:[
+    ['Prioridade 1 — Carteira de distribuição',D.n===0?'Sem leads na carteira nesta exportação.':D.a36>0?`Validar os ${n0(D.a36)} registros acima de 36 dias, conferindo histórico e situação. Depois, revisar os demais registros P1 (${n0(nP1)} no total).`:`Revisar os ${n0(nP1)} registros classificados como P1.`],
+    ['Prioridade 2 — Acompanhamento individual',top.length?`Iniciar pelas carteiras de ${joinPt(top.map(b=>b.nick))}, com critérios específicos para cada caso e oportunidade de esclarecimento dos registros.`:'Nenhuma carteira da equipe com alertas nesta exportação.'],
+    ['Prioridade 3 — Reativação comercial',`Separar os ${n0(K(T,SK.TC))} leads da equipe em Tentativa de Contato por empreendimento, origem e histórico de interações, identificando quais merecem uma nova abordagem.`],
+    ['Prioridade 4 — Melhorar a base de indicadores','Incorporar às próximas exportações a data do último contato, a quantidade de ligações, as indicações, as visitas, as propostas e as datas das vendas.']]});
+
+  h2('7. Segurança e controle');
+  p('A análise usou somente a planilha carregada, sem modificar a exportação original nem o CRM. Nenhum lead foi redistribuído, nenhuma penalidade foi aplicada e nenhuma cobrança foi enviada.');
+  p(`A versão de referência é ${m.sheetName||m.fileName}, de ${fmtDay(m.ref)}. Os resultados são um retrato dessa exportação${old>=1?`, não a situação atualizada de ${fmtDay(todayDay())}`:''}.`);
+
+  histReportBlocks(h2,p,push);
+
+  h2('Conclusão gerencial');
+  if(D.n>0&&D.a36>=T.a36&&D.a36>0)p(`O principal ponto de atenção está na carteira de distribuição, que concentra ${n0(D.n)} leads, ${n0(D.a36)} deles acima de 36 dias, e exige validação.`);
+  else if(T.a36>0)p(`O principal ponto de atenção está nas carteiras individuais, onde ${n0(T.a36)} leads passam de 36 dias.`);
+  else p('Nenhuma carteira tem leads acima de 36 dias nesta exportação.');
+  p('Os alertas indicam onde a gerência deve investigar e apoiar os corretores, mas não bastam para estabelecer um ranking definitivo de produtividade.');
+  return B;
+}
+function reportHTML(B){
+  const cell=(b,c,i)=>`<td class="${b.num&&i?'r':''}">${esc(c)}</td>`;
+  return B.map(b=>{
+    switch(b.t){
+      case'title':return`<h2 class="rtitle">${esc(b.x)}</h2>`;
+      case'meta':return`<p class="rmeta">${b.x.map(esc).join(' · ')}</p>`;
+      case'h2':return`<h3 class="rh2">${esc(b.x)}</h3>`;
+      case'h3':return`<h4 class="rh3">${esc(b.x)}</h4>`;
+      case'p':return`<p>${esc(b.x)}</p>`;
+      case'kv':return`<dl class="rkv">${b.rows.map(r=>`<div><dt>${esc(r[0])}</dt><dd><b>${esc(r[1])}</b>${r[2]?` <span class="muted">${esc(r[2])}</span>`:''}</dd></div>`).join('')}</dl>`;
+      case'ul':return`<ul class="rules">${b.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`;
+      case'tb':return`<div class="tw"><table class="tbl"><thead><tr>${b.head.map((h,i)=>`<th class="${b.num&&i?'r':''}">${esc(h)}</th>`).join('')}</tr></thead><tbody>${b.rows.map(r=>`<tr>${r.map((c,i)=>cell(b,c,i)).join('')}</tr>`).join('')}</tbody>${b.foot?`<tfoot><tr>${b.foot.map((c,i)=>cell(b,c,i)).join('')}</tr></tfoot>`:''}</table></div>`;
+    }
+    return'';
+  }).join('');
+}
+function reportText(B){
+  const out=[];
+  for(const b of B){
+    switch(b.t){
+      case'title':out.push(b.x);break;
+      case'meta':out.push(b.x.join('\n'));break;
+      case'h2':out.push(b.x.toUpperCase());break;
+      case'h3':out.push(b.x);break;
+      case'p':out.push(b.x);break;
+      case'kv':out.push(b.rows.map(r=>`${r[0]}: ${r[1]}${r[2]?` (${r[2]})`:''}`).join('\n'));break;
+      case'ul':out.push(b.items.map(i=>'- '+i).join('\n'));break;
+      case'tb':{const rows=b.rows.concat(b.foot?[b.foot]:[]);
+        out.push(rows.map(r=>b.head.length===2?`${r[0]}: ${r[1]}`:`${r[0]}: `+r.slice(1).map((c,i)=>`${b.head[i+1]} ${c}`).join(' · ')).join('\n'));break}
+    }
+  }
+  return out.join('\n\n')+'\n';
+}
+function viewRelatorio(){
+  return`<div class="row-head"><div><h1>Relatório</h1><p class="sub">Relatório gerencial em texto, montado com os números da planilha carregada. Copie e cole onde precisar.</p></div>
+    <div class="chips"><button class="btn btn-primary" type="button" data-act="rep-copy">Copiar relatório</button><button class="btn" type="button" data-act="rep-txt">Baixar .txt</button></div></div>
+    <article class="panel report">${reportHTML(buildReport())}</article>`;
+}
+
+function viewAlertas(){
+  const m=S.m;
+  exInit('alertas',m.leads,{title:'Leads',band:'36',showGroup:true,showBroker:true,showEmp:true,showSit:true});
+  return`<div class="row-head"><div><h1>Alertas</h1><p class="sub">Leads sem contato há mais tempo, para decidir quem cobrar ou redistribuir. As faixas são cumulativas.</p></div></div>
+  <p class="hint" style="margin:-4px 0 14px">Baseado no campo Dias sem contato do CRM. Não há data do último contato na exportação, por isso confira o histórico do lead antes de agir.</p>
+  ${exHTML('alertas')}`;
+}
+
+/* ============ lista de leads (filtros, ordenação, exportação) ============ */
+const exDefault=()=>({band:'',sit:'',prio:'',group:'',broker:'',emp:'',q:'',limit:100,sort:'dias',dir:-1});
+function exInit(key,src,cfg){EX[key]={src,cfg};if(!S.ex[key])S.ex[key]={...exDefault(),band:cfg.band||''}}
+function exFilter(key,ignoreBand){
+  const f=S.ex[key],q=norm(f.q);
+  return EX[key].src.filter(l=>(ignoreBand||!f.band||(l.dias!=null&&l.dias>+f.band))&&(!f.sit||l.sit===f.sit)&&(!f.prio||l.p===f.prio)&&(!f.group||l.g===f.group)&&
+    (!f.broker||l.ck===f.broker)&&(!f.emp||(f.emp==='Sem empreendimento'?!l.siglas.length:l.eps.includes(f.emp)))&&(!q||l.hay.includes(q)));
+}
+function exHTML(key){
+  const {src,cfg}=EX[key],f=S.ex[key];
+  const sits=[...new Set(src.map(l=>l.sit))].sort((a,b)=>{const i=x=>{const k=SIT_ORDER.findIndex(s=>norm(s)===norm(x));return k<0?99:k};return i(a)-i(b)});
+  const emps=[...new Set(src.flatMap(l=>l.eps.length?l.eps:(l.siglas.length?[]:['Sem empreendimento'])))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  const brokers=S.m.brokers.filter(b=>src.some(l=>l.ck===b.ck)).sort((a,b)=>a.nick.localeCompare(b.nick,'pt-BR'));
+  const opt=(v,l,sel)=>`<option value="${esc(v)}"${sel?' selected':''}>${esc(l)}</option>`;
+  return`<section class="panel" id="ex-${key}" data-ex="${key}">
+    <div class="row-head" style="margin-bottom:0"><h2>${esc(cfg.title)}</h2>
+      <div class="chips"><button class="btn" type="button" data-act="copy" data-ex="${key}">Copiar para planilha</button><button class="btn" type="button" data-act="csv" data-ex="${key}">Baixar CSV</button></div></div>
+    <div class="ex-filters">
+      <div class="chips" role="group" aria-label="Faixa de dias sem contato">
+        ${[['','Todos',''],['15','Acima de 15','15'],['30','Acima de 30','30'],['36','Acima de 36','36']].map(c=>`<button type="button" class="chip" data-act="exf" data-ex="${key}" data-f="band" data-v="${c[0]}" aria-pressed="${f.band===c[0]}">${c[2]?`<i class="sev sev-${c[2]}"></i>`:''}${c[1]}<span class="c" data-cnt="${c[0]}"></span></button>`).join('')}
+      </div>
+      ${cfg.showSit?`<select data-f="sit" aria-label="Situação"><option value="">Todas as situações</option>${sits.map(s=>opt(s,s,f.sit===s)).join('')}</select>`:''}
+      ${cfg.showPrio?`<select data-f="prio" aria-label="Prioridade"><option value="">Todas as prioridades</option>${PRIO.map(p=>opt(p[0],p[1]+' · '+p[2],f.prio===p[0])).join('')}</select>`:''}
+      ${cfg.showGroup?`<select data-f="group" aria-label="Carteira">${[['','Todas as carteiras'],['equipe','Equipe'],['dist','Distribuição'],['fora','Fora da equipe']].map(o=>opt(o[0],o[1],f.group===o[0])).join('')}</select>`:''}
+      ${cfg.showBroker?`<select data-f="broker" aria-label="Corretor"><option value="">Todos os corretores</option>${brokers.map(b=>opt(b.ck,b.g==='dist'?'Carteira de distribuição':b.nick,f.broker===b.ck)).join('')}</select>`:''}
+      ${cfg.showEmp?`<select data-f="emp" aria-label="Empreendimento"><option value="">Todos os empreendimentos</option>${emps.map(s=>opt(s,s,f.emp===s)).join('')}</select>`:''}
+      <input type="search" data-f="q" placeholder="Buscar nome, telefone, e-mail ou Id" value="${esc(f.q)}" aria-label="Buscar">
+    </div>
+    <div class="ex-res"></div></section>`;
+}
+const EXCOLS=[['id','Id'],['nome','Nome'],['sit','Situação'],['prio','Prioridade'],['dias','Dias sem contato','r'],['emp','Empreendimento'],['origem','Origem'],['inter','1ª interação'],['ent','Última entrada'],['tel','Telefone'],['mom','Momento'],['broker','Corretor']];
+function exSort(list,f){
+  const k=f.sort,d=f.dir;
+  const val=l=>k==='broker'?(S.m.brokerByCk.get(l.ck)||{}).nick||'':k==='prio'?l.p:l[k];
+  return list.slice().sort((a,b)=>{
+    let x=val(a),y=val(b),c;
+    if(k==='dias'||k==='inter'||k==='ent'){if(x==null&&y==null)c=0;else if(x==null)return 1;else if(y==null)return -1;else c=x-y}
+    else if(k==='id')c=String(x).localeCompare(String(y),'pt-BR',{numeric:true});
+    else c=String(x).localeCompare(String(y),'pt-BR');
+    return c*d||String(b.id).localeCompare(String(a.id),'pt-BR',{numeric:true});
+  });
+}
+function exRefresh(key){
+  const root=document.getElementById('ex-'+key);if(!root||!EX[key])return;
+  const f=S.ex[key],base=exFilter(key,true);
+  root.querySelectorAll('[data-act="exf"][data-f="band"]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===f.band)));
+  root.querySelectorAll('[data-cnt]').forEach(s=>{const v=s.dataset.cnt;s.textContent=n0(v?base.filter(l=>l.dias!=null&&l.dias>+v).length:base.length)});
+  root.querySelectorAll('select[data-f]').forEach(s=>{if(s.value!==f[s.dataset.f])s.value=f[s.dataset.f]});
+  const list=exSort(exFilter(key,false),f),shown=list.slice(0,f.limit);
+  const cols=EXCOLS.filter(c=>(c[0]!=='broker'||EX[key].cfg.showBroker||EX[key].cfg.showGroup)&&(c[0]!=='prio'||EX[key].cfg.showPrio));
+  const cell=(l,k)=>{
+    switch(k){
+      case'dias':return`<td class="r"><span class="dias">${sevOf(l.dias)?`<i class="sev sev-${sevOf(l.dias)}"></i><span class="vh">alerta acima de ${sevOf(l.dias)} dias</span>`:''}${l.dias==null?'—':n0(l.dias)}</span></td>`;
+      case'inter':case'ent':return`<td class="num">${fmtDay(l[k])}</td>`;
+      case'tel':{const dg=l.tel.replace(/\D/g,'');return`<td class="num">${l.tel?(dg.length>=10?`<a href="https://wa.me/${dg}" target="_blank" rel="noopener">${esc(l.tel)}</a>`:esc(l.tel)):'<span class="muted">—</span>'}</td>`}
+      case'broker':{const b=S.m.brokerByCk.get(l.ck);return`<td>${esc(b?(b.g==='dist'?'Distribuição':b.nick):l.corretor)}</td>`}
+      case'emp':return`<td class="wrap">${l.empShow?esc(l.empShow):'<span class="muted">—</span>'}</td>`;
+      case'nome':return`<td class="wrap">${esc(l.nome)}</td>`;
+      case'prio':return`<td>${l.p?'<b>P'+l.p+'</b>':'<span class="muted">—</span>'}</td>`;
+      case'mom':return`<td>${l.mom?esc(l.mom):'<span class="muted">—</span>'}</td>`;
+      default:return`<td>${esc(l[k])}</td>`}
+  };
+  const th=cols.map(c=>`<th class="${c[2]||''}" aria-sort="${f.sort===c[0]?(f.dir>0?'ascending':'descending'):'none'}"><button type="button" data-act="exsort" data-ex="${key}" data-v="${c[0]}">${c[1]}</button></th>`).join('');
+  root.querySelector('.ex-res').innerHTML=list.length?
+    `<div class="ex-sum"><span>Mostrando <b>${n0(shown.length)}</b> de <b>${n0(list.length)}</b> leads</span><span class="muted">Ordenado por ${esc((EXCOLS.find(c=>c[0]===f.sort)||[])[1]||'')}</span></div>
+     <div class="tw"><table class="tbl ex-tbl"><thead><tr>${th}</tr></thead><tbody>${shown.map(l=>`<tr>${cols.map(c=>cell(l,c[0])).join('')}</tr>`).join('')}</tbody></table></div>
+     ${shown.length<list.length?`<div class="ex-more"><button class="btn" type="button" data-act="more" data-ex="${key}">Mostrar mais ${Math.min(100,list.length-shown.length)}</button></div>`:''}`
+    :'<div class="empty">Nenhum lead com esses filtros.</div>';
+}
+function exCsv(key,sep){
+  const cfg=EX[key].cfg,list=exSort(exFilter(key,false),S.ex[key]);
+  const head=['Id','Nome','E-mail','Telefone','Situação','Dias sem contato','Empreendimento','Primeira Origem','Data Primeiro Cadastro','Data da Última Entrada','Data da Primeira Interação','Momento do Lead','Corretor'];
+  if(cfg.showPrio)head.push('Prioridade');
+  const q=v=>{v=v==null?'':String(v);return sep===';'?(/[;"\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v):v.replace(/[\t\r\n]+/g,' ')};
+  const dt=d=>d==null?'':fmtDay(d);
+  const rows=[head].concat(list.map(l=>{const r=[l.id,l.nome,l.email,l.tel,l.sit,l.dias==null?'':l.dias,l.empShow,l.origem,dt(l.cad),dt(l.ent),dt(l.inter),l.mom,l.corretor];if(cfg.showPrio)r.push(l.p?'P'+l.p:'');return r}));
+  return{text:rows.map(r=>r.map(q).join(sep)).join('\r\n'),n:list.length};
+}
+
+/* ============ histórico de exportações (só totais; nenhum dado pessoal de lead) ============ */
+const HMAX=80;
+const IND=[['n','Leads',null],['a15','Acima de 15 dias',true],['a30','Acima de 30 dias',true],['a36','Acima de 36 dias',true],['ag','Aguardando Atendimento',true],['ea','Em atendimento',null],['vr','Visita realizada',false],['vd','Venda realizada',false],['si','Sem 1ª interação',true]];
+const HMET=[['a15','Acima de 15 dias'],['a30','Acima de 30 dias'],['a36','Acima de 36 dias'],['ag','Aguardando Atendimento'],['si','Sem 1ª interação'],['n','Leads']];
+const mt=st=>({n:st.n,a15:st.a15,a30:st.a30,a36:st.a36,ag:K(st,SK.AG),ea:K(st,SK.EA),vr:K(st,SK.VR),vd:K(st,SK.VD),si:st.semInter});
+function histLoad(){
+  try{const j=JSON.parse(localStorage.getItem(HKEY)||'null');
+    if(j&&Array.isArray(j.snaps))return j.snaps.filter(s=>s&&s.v===1&&Number.isFinite(s.ref)&&s.tot&&s.eq&&s.di&&Array.isArray(s.br)).sort((a,b)=>a.ref-b.ref)}catch(_){}
+  return[];
+}
+function histStore(){
+  const put=()=>localStorage.setItem(HKEY,JSON.stringify({snaps:S.hist}));
+  try{put();S.histOk=true}catch(_){
+    try{S.hist.slice(0,-4).forEach(s=>{delete s.st});put();S.histOk=true}catch(__){S.histOk=false}
+  }
+}
+function snapFrom(m){
+  const pc=[0,0,0,0];for(const l of m.distLeads)if(l.p)pc[+l.p-1]++;
+  const idx=new Map(m.brokers.map((b,i)=>[b.ck,i]));
+  const st=[];for(const l of m.leads)if(l.dias>30&&l.id)st.push([String(l.id),l.dias,idx.get(l.ck)]);
+  const em={};for(const e of m.emps)em[e.raw]=mt(e.st);
+  return{v:1,ref:m.ref,file:m.fileName,sheet:m.sheetName||'',saved:Date.now(),tot:mt(m.all),eq:mt(m.teamSt),di:mt(m.distSt),fo:mt(m.foraSt),p:pc,nt:m.team.length,
+    br:m.brokers.map(b=>({k:b.ck,nick:b.nick,g:b.g,...mt(b.st)})),em,st};
+}
+function histRecord(){
+  if(S.sample||!S.m||S.m.sample||S.m.ref==null)return null;
+  const snap=snapFrom(S.m),i=S.hist.findIndex(x=>x.ref===snap.ref),isNew=i<0;
+  if(isNew)S.hist.push(snap);else S.hist[i]=snap;
+  S.hist.sort((a,b)=>a.ref-b.ref);while(S.hist.length>HMAX)S.hist.shift();
+  histStore();return{isNew,snap};
+}
+function histPair(){
+  const H=S.hist;if(H.length<2)return null;
+  let b=H.find(s=>s.ref===S.hc.b)||H[H.length-1];
+  let a=H.find(s=>s.ref===S.hc.a&&s.ref<b.ref);
+  if(!a)a=[...H].reverse().find(s=>s.ref<b.ref);
+  if(!a){b=H[H.length-1];a=H[H.length-2]}
+  return{a,b};
+}
+const histPrev=()=>S.m&&!S.sample&&S.m.ref!=null?[...S.hist].reverse().find(s=>s.ref<S.m.ref)||null:null;
+function histJSON(){return JSON.stringify({app:'skr-painel',v:1,exportado:new Date().toISOString(),snaps:S.hist})}
+function histImport(text){
+  let j;try{j=JSON.parse(text)}catch(_){throw new Error('O texto colado não é um histórico válido.')}
+  const arr=Array.isArray(j)?j:(j&&j.snaps);if(!Array.isArray(arr))throw new Error('Não encontrei exportações guardadas nesse texto.');
+  let add=0;
+  for(const s of arr){
+    if(!s||s.v!==1||!Number.isFinite(s.ref)||!s.tot||!s.eq||!s.di||!Array.isArray(s.br))continue;
+    const i=S.hist.findIndex(x=>x.ref===s.ref);
+    if(i<0){S.hist.push(s);add++}else if((s.saved||0)>(S.hist[i].saved||0)){S.hist[i]=s;add++}
+  }
+  S.hist.sort((a,b)=>a.ref-b.ref);while(S.hist.length>HMAX)S.hist.shift();
+  histStore();return add;
+}
+
+/* ---- comparação ---- */
+const sgn=d=>d>0?'+'+n0(d):d<0?'−'+n0(-d):'0';
+function dlt(d,down){
+  if(!d)return'<span class="d0">0</span>';
+  if(down==null)return`<span class="d0">${d>0?'▲':'▼'} ${sgn(d)}</span>`;
+  const good=(d<0)===down;
+  return`<span class="${good?'dg':'db'}">${d>0?'▲':'▼'} ${sgn(d)}<span class="vh"> (${good?'melhorou':'piorou'})</span></span>`;
+}
+function stuckCmp(A,B){
+  if(!A.st||!B.st)return null;
+  const ia=new Map(A.st.map(x=>[x[0],x])),ib=new Map(B.st.map(x=>[x[0],x])),rows=new Map();
+  const row=b=>{let r=rows.get(b.k);if(!r){r={nick:b.g==='dist'?'Distribuição':b.nick,g:b.g,antes:0,saiu:0,entr:0,agora:0};rows.set(b.k,r)}return r};
+  let cont=0,saiu=0,entr=0;
+  for(const [id,x] of ia){const b=A.br[x[2]];if(!b)continue;const r=row(b);r.antes++;if(ib.has(id))cont++;else{saiu++;r.saiu++}}
+  for(const [id,x] of ib){const b=B.br[x[2]];if(!b)continue;const r=row(b);r.agora++;if(!ia.has(id)){entr++;r.entr++}}
+  return{antes:ia.size,agora:ib.size,cont,saiu,entr,rows:[...rows.values()].sort((a,b)=>b.antes-a.antes||b.agora-a.agora)};
+}
+function resumoTbl(A,B){
+  const G=[['eq','Equipe'],['di','Distribuição']],da=fmtDay(A.ref),db=fmtDay(B.ref);
+  const body=IND.map(i=>`<tr><td>${i[1]}</td>${G.map(g=>{const a=A[g[0]][i[0]],b=B[g[0]][i[0]];return`<td class="r">${n0(a)}</td><td class="r">${n0(b)}</td><td class="r">${dlt(b-a,i[2])}</td>`}).join('')}</tr>`).join('');
+  return`<div class="tw"><table class="tbl"><thead><tr><th rowspan="2">Indicador</th>${G.map(g=>`<th colspan="3" class="r grp">${g[1]}</th>`).join('')}</tr>
+    <tr>${G.map(()=>`<th class="r">${da.slice(0,5)}</th><th class="r">${db.slice(0,5)}</th><th class="r">Variação</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+function prioTbl(A,B){
+  if(!A.p||!B.p||A.p.length!==4||B.p.length!==4)return'';
+  return`<div class="tw"><table class="tbl"><thead><tr><th>Triagem da distribuição</th><th class="r">${fmtDay(A.ref).slice(0,5)}</th><th class="r">${fmtDay(B.ref).slice(0,5)}</th><th class="r">Variação</th></tr></thead><tbody>${
+    PRIO.map((q,i)=>`<tr><td><b>${q[1]}</b> · ${q[2]}</td><td class="r">${n0(A.p[i])}</td><td class="r">${n0(B.p[i])}</td><td class="r">${dlt(B.p[i]-A.p[i],i<3?true:null)}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function cmpCell(b,a,down){
+  if(b==null)return'<td class="r muted">—</td>';
+  return`<td class="r">${n0(b)} ${a==null?'<span class="d0">novo</span>':b===a?'':dlt(b-a,down)}</td>`;
+}
+function corrCmpTbl(A,B){
+  const mA=new Map(A.br.map(x=>[x.k,x])),mB=new Map(B.br.map(x=>[x.k,x]));
+  const keys=[...new Set([...B.br,...A.br].filter(x=>x.g==='equipe').map(x=>x.k))];
+  keys.sort((x,y)=>((mB.get(y)||{}).a30||0)-((mB.get(x)||{}).a30||0)||String(x).localeCompare(String(y)));
+  const C=[['n','Leads',null],['a15','Acima de 15',true],['a30','Acima de 30',true],['a36','Acima de 36',true],['ag','Aguardando',true],['si','Sem 1ª interação',true]];
+  const body=keys.map(k=>{const a=mA.get(k),b=mB.get(k),nm=esc((b||a).nick);
+    return`<tr><td>${nm}${!b?' <span class="muted">(não está na exportação nova)</span>':''}</td>${C.map(c=>cmpCell(b?b[c[0]]:null,a?a[c[0]]:null,c[2])).join('')}</tr>`}).join('');
+  return`<div class="tw"><table class="tbl"><thead><tr><th>Corretor</th>${C.map(c=>`<th class="r">${c[1]}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+function empCmpTbl(A,B){
+  const ea=A.em||{},eb=B.em||{},names=[...new Set([...Object.keys(eb),...Object.keys(ea)])].sort((x,y)=>((eb[y]||{}).n||0)-((eb[x]||{}).n||0)||x.localeCompare(y,'pt-BR'));
+  const C=[['n','Leads',null],['a15','Acima de 15',true],['a30','Acima de 30',true],['a36','Acima de 36',true]];
+  const body=names.map(k=>`<tr><td>${esc(k)}</td>${C.map(c=>cmpCell(eb[k]?eb[k][c[0]]:null,ea[k]?ea[k][c[0]]:null,c[2])).join('')}</tr>`).join('');
+  return`<div class="tw"><table class="tbl"><thead><tr><th>Empreendimento</th>${C.map(c=>`<th class="r">${c[1]}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+function stuckPanel(A,B){
+  const c=stuckCmp(A,B);
+  if(!c)return`<section class="panel"><h2>Leads parados há mais de 30 dias</h2><p class="muted">Uma das exportações foi guardada sem a lista de leads parados, então não dá para acompanhar lead a lead.</p></section>`;
+  const body=c.rows.map(r=>`<tr><td>${esc(r.nick)}</td><td class="r">${n0(r.antes)}</td><td class="r">${r.saiu?`<span class="dg">${n0(r.saiu)}</span>`:'0'}</td><td class="r">${r.entr?`<span class="db">${n0(r.entr)}</span>`:'0'}</td><td class="r">${n0(r.agora)}</td></tr>`).join('');
+  return`<section class="panel"><h2>Leads parados há mais de 30 dias</h2>
+    <p class="hint">Acompanhamento lead a lead, pelo Id. Saíram: deixaram de estar acima de 30 dias (houve contato ou o lead saiu da exportação). Entraram: passaram dos 30 dias desde a exportação anterior.</p>
+    <div class="kpis kpis-s"><div class="kpi"><div class="kpi-l">Antes</div><div class="kpi-v">${n0(c.antes)}</div><div class="kpi-s">${fmtDay(A.ref).slice(0,5)}</div></div>
+      <div class="kpi"><div class="kpi-l">Continuam parados</div><div class="kpi-v">${n0(c.cont)}</div><div class="kpi-s">${pct(c.cont,c.antes)} dos de antes</div></div>
+      <div class="kpi"><div class="kpi-l">Saíram</div><div class="kpi-v dg">${n0(c.saiu)}</div><div class="kpi-s">${pct(c.saiu,c.antes)} dos de antes</div></div>
+      <div class="kpi"><div class="kpi-l">Entraram</div><div class="kpi-v db">${n0(c.entr)}</div><div class="kpi-s">novos parados</div></div>
+      <div class="kpi"><div class="kpi-l">Agora</div><div class="kpi-v">${n0(c.agora)}</div><div class="kpi-s">${fmtDay(B.ref).slice(0,5)}</div></div></div>
+    <div class="tw"><table class="tbl"><thead><tr><th>Carteira</th><th class="r">Antes</th><th class="r">Saíram</th><th class="r">Entraram</th><th class="r">Agora</th></tr></thead><tbody>${body}</tbody></table></div>
+    <p class="note">Leads que trocaram de corretor entre as duas exportações contam na carteira de cada data, por isso a soma de uma linha pode não fechar com a variação.</p></section>`;
+}
+
+/* ---- gráfico de linhas ---- */
+function niceScale(v){
+  const top=Math.max(v,1),raw=top/5,p=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/p,step=Math.max(1,(f<=1?1:f<=2?2:f<=5?5:10)*p);
+  return{step,max:Math.ceil(top/step)*step};
+}
+function lineChart(dates,fulls,series){
+  const W=Math.max(300,Math.min(1100,(app.clientWidth||700)-40)),H=250,pl=46,pr=44,pt=18,pb=30,iw=W-pl-pr,ih=H-pt-pb;
+  const sc=niceScale(Math.max(1,...series.flatMap(s=>s.vals))),mx=sc.max;
+  const X=i=>pl+(dates.length>1?i*iw/(dates.length-1):iw/2),Y=v=>pt+ih*(1-v/mx);
+  let g='';
+  for(let v=0;v<=mx;v+=sc.step){const y=Y(v);g+=`<line class="grid" x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}"/><text x="${pl-8}" y="${y+4}" text-anchor="end">${n0(v)}</text>`}
+  const step=Math.ceil(dates.length/Math.max(2,Math.floor(iw/56)));
+  const xl=dates.map((d,i)=>i%step===0||i===dates.length-1?`<text x="${X(i)}" y="${H-9}" text-anchor="middle">${d}</text>`:'').join('');
+  const cw=iw/Math.max(1,dates.length-1);
+  const hit=dates.map((d,i)=>`<rect class="hit" x="${X(i)-cw/2}" y="${pt}" width="${cw}" height="${ih}"><title>${esc(fulls[i]+' — '+series.map(s=>s.name+': '+n0(s.vals[i])).join(' · '))}</title></rect>`).join('');
+  const lines=series.map(s=>`<polyline fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="${s.vals.map((v,i)=>X(i)+','+Y(v)).join(' ')}"/>`+
+    s.vals.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="4" fill="${s.color}" stroke="var(--surface)" stroke-width="2"/>`).join('')).join('');
+  const L=series.map(s=>({v:s.vals[s.vals.length-1],y:Y(s.vals[s.vals.length-1])+4})).sort((a,b)=>a.y-b.y);
+  for(let k=1;k<L.length;k++)if(L[k].y-L[k-1].y<14)L[k].y=L[k-1].y+14;
+  const ends=L.map(o=>`<text class="endv" x="${X(dates.length-1)+10}" y="${o.y}" text-anchor="start">${n0(o.v)}</text>`).join('');
+  return`<svg class="lc" viewBox="0 0 ${W} ${H}" style="max-width:${W}px" role="img" aria-label="${esc(series.map(s=>s.name).join(' e '))} ao longo das exportações">${g}${xl}${hit}${lines}${ends}</svg>
+    <div class="legend">${series.map(s=>`<span class="lg"><i style="background:${s.color}"></i>${esc(s.name)}</span>`).join('')}</div>`;
+}
+function evolPanel(){
+  const H=S.hist,met=HMET.find(x=>x[0]===S.hm)||HMET[2];
+  const dates=H.map(s=>fmtDay(s.ref).slice(0,5)),fulls=H.map(s=>fmtDay(s.ref));
+  const series=[{name:'Equipe',color:'var(--s1)',vals:H.map(s=>s.eq[met[0]]||0)},{name:'Distribuição',color:'var(--s2)',vals:H.map(s=>s.di[met[0]]||0)}];
+  const tbl=`<div class="tw"><table class="tbl"><thead><tr><th>Exportação</th><th class="r">Equipe</th><th class="r">Distribuição</th></tr></thead><tbody>${H.map((s,i)=>`<tr><td>${fulls[i]}</td><td class="r">${n0(series[0].vals[i])}</td><td class="r">${n0(series[1].vals[i])}</td></tr>`).join('')}</tbody></table></div>`;
+  return`<section class="panel"><div class="ph"><h2>Evolução</h2><label class="muted">Indicador <select data-act-change="hist-metric" aria-label="Indicador do gráfico">${HMET.map(x=>`<option value="${x[0]}"${x[0]===met[0]?' selected':''}>${x[1]}</option>`).join('')}</select></label></div>
+    <p class="hint">${met[1]} em cada exportação guardada.</p>${lineChart(dates,fulls,series)}<details class="tbl-view"><summary>Ver como tabela</summary>${tbl}</details></section>`;
+}
+function savedPanel(){
+  const H=S.hist;
+  const rows=[...H].reverse().map(s=>`<tr><td>${fmtDay(s.ref)}</td><td class="fn2" title="${esc(s.file||'')}">${esc(s.file||'')}</td><td class="r">${n0(s.tot.n)}</td><td class="r">${s.saved?fmtDay(Math.floor((s.saved-new Date(s.saved).getTimezoneOffset()*60000)/86400000)):''}</td><td class="r">${S.hdel===s.ref?`<span class="muted">Remover?</span> <button type="button" class="btn" data-act="hist-del-yes" data-v="${s.ref}">Sim</button> <button type="button" class="btn" data-act="hist-del-no">Não</button>`:`<button type="button" class="btn" data-act="hist-del" data-v="${s.ref}" aria-label="Remover exportação de ${fmtDay(s.ref)}">Remover</button>`}</td></tr>`).join('');
+  return`<section class="panel"><h2>Exportações guardadas</h2>
+    <p class="hint">Ficam guardadas só neste navegador e neste aparelho. Se limpar os dados do navegador ou abrir em outro aparelho, o histórico não aparece. Faça uma cópia de segurança de vez em quando.</p>
+    ${H.length?`<div class="tw"><table class="tbl"><thead><tr><th>Exportação</th><th>Arquivo</th><th class="r">Leads</th><th class="r">Guardada em</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:'<p class="muted">Nenhuma exportação guardada ainda.</p>'}
+    <div class="chips" style="margin-top:12px"><button type="button" class="btn" data-act="hist-copy">Copiar histórico (cópia de segurança)</button><button type="button" class="btn" data-act="hist-dl">Baixar .json</button><button type="button" class="btn" data-act="hist-import">Importar histórico</button></div></section>`;
+}
+function viewHistorico(){
+  const H=S.hist,pair=histPair(),m=S.m;
+  const head=(m?'':'<p><a href="#painel">← Voltar para o início</a></p>')+`<div class="row-head"><div><h1>Histórico</h1><p class="sub">Cada planilha carregada fica guardada aqui só com os totais, para comparar uma semana com a outra. Nenhum nome, telefone ou e-mail é guardado.</p></div></div>`;
+  let warn='';
+  if(m&&m.sample)warn='<div class="panel empty">Os dados de exemplo não entram no histórico.</div>';
+  else if(m&&m.ref==null)warn='<div class="panel empty">Esta exportação não tem data reconhecível, por isso não foi guardada no histórico.</div>';
+  if(S.histOk===false)warn+='<div class="msg err" role="alert"><span>Este navegador não deixou guardar o histórico (armazenamento bloqueado ou cheio). A comparação funciona só enquanto a página está aberta.</span></div>';
+  if(!pair){
+    return head+warn+`<section class="panel"><h2>Comparação entre semanas</h2><p>${H.length?`Só há uma exportação guardada (${fmtDay(H[0].ref)}).`:'Ainda não há exportação guardada.'} Carregue a exportação seguinte, de outra data, e a comparação aparece aqui. Se você tiver exportações antigas, pode carregá-las agora: cada uma entra no histórico pela data dela.</p></section>`+(H.length?evolPanel():'')+savedPanel();
+  }
+  const {a,b}=pair,dias=b.ref-a.ref;
+  const opt=(s,sel)=>`<option value="${s.ref}"${s.ref===sel?' selected':''}>${fmtDay(s.ref)} · ${n0(s.tot.n)} leads</option>`;
+  const sel=`<div class="cmp-sel"><label class="muted">Exportação anterior <select data-act-change="hist-a" aria-label="Exportação anterior">${H.map(s=>opt(s,a.ref)).join('')}</select></label><label class="muted">Exportação nova <select data-act-change="hist-b" aria-label="Exportação nova">${H.map(s=>opt(s,b.ref)).join('')}</select></label></div>`;
+  return head+warn+sel+
+    `<section class="panel"><h2>De ${fmtDay(a.ref)} para ${fmtDay(b.ref)}</h2><p class="hint">${dias} dia${dias===1?'':'s'} entre as exportações. Nas faixas de inatividade, queda é melhora. A equipe de cada exportação é a que estava marcada em Configurações quando ela foi guardada.</p>${resumoTbl(a,b)}${prioTbl(a,b)}</section>`+
+    `<div style="margin-top:16px">${evolPanel()}</div>`+
+    `<section class="panel" style="margin-top:16px"><h2>Corretores da equipe</h2><p class="hint">Valor da exportação nova e variação desde a anterior.</p>${corrCmpTbl(a,b)}</section>`+
+    `<div style="margin-top:16px">${stuckPanel(a,b)}</div>`+
+    `<section class="panel" style="margin-top:16px"><h2>Empreendimentos</h2><p class="hint">Um lead com mais de um empreendimento conta em cada um.</p>${empCmpTbl(a,b)}</section>`+
+    `<div style="margin-top:16px">${savedPanel()}</div>`;
+}
+function cmpStrip(){
+  const prev=histPrev();if(!prev)return'';
+  const cur=snapFrom(S.m),dias=cur.ref-prev.ref;
+  const it=(l,k,down)=>`<div class="cmp-i"><span class="muted">${l}</span><b class="num">${n0(cur.tot[k])}</b>${dlt(cur.tot[k]-prev.tot[k],down)}</div>`;
+  return`<section class="panel cmp"><div class="cmp-h"><b>Desde a exportação de ${fmtDay(prev.ref)}</b><span class="muted"> (${dias} dia${dias===1?'':'s'})</span><a href="#historico">Ver comparação completa</a></div>
+    <div class="cmp-grid">${it('Acima de 15 dias','a15',true)}${it('Acima de 30 dias','a30',true)}${it('Acima de 36 dias','a36',true)}${it('Aguardando Atendimento','ag',true)}</div></section>`;
+}
+function histReportBlocks(h2,p,push){
+  const prev=histPrev();if(!prev)return;
+  const cur=snapFrom(S.m),dias=cur.ref-prev.ref;
+  h2('8. Evolução desde a exportação anterior');
+  p(`Comparação com a exportação de ${fmtDay(prev.ref)}, ${dias} dia${dias===1?'':'s'} antes, guardada no histórico deste navegador. Nas faixas de inatividade, queda é melhora.`);
+  const rows=[];
+  for(const g of[['eq','Equipe'],['di','Distribuição']])for(const i of IND.filter(x=>['a15','a30','a36','ag'].includes(x[0])))rows.push([`${g[1]} — ${i[1]}`,n0(prev[g[0]][i[0]]),n0(cur[g[0]][i[0]]),sgn(cur[g[0]][i[0]]-prev[g[0]][i[0]])]);
+  push({t:'tb',num:true,head:['Indicador','Antes','Agora','Variação'],rows});
+  const mp=new Map(prev.br.map(x=>[x.k,x])),d=cur.br.filter(x=>x.g==='equipe'&&mp.has(x.k)).map(x=>({nick:x.nick,v:x.a30-mp.get(x.k).a30}));
+  const down=d.filter(x=>x.v<0).sort((a,b)=>a.v-b.v).slice(0,3),up=d.filter(x=>x.v>0).sort((a,b)=>b.v-a.v).slice(0,3);
+  if(down.length)p('Maior queda de leads acima de 30 dias: '+down.map(x=>`${x.nick} (${sgn(x.v)})`).join(', ')+'.');
+  if(up.length)p('Maior alta de leads acima de 30 dias: '+up.map(x=>`${x.nick} (${sgn(x.v)})`).join(', ')+'.');
+  const c=stuckCmp(prev,cur);
+  if(c)p(`Dos ${n0(c.antes)} leads que estavam acima de 30 dias, ${n0(c.saiu)} deixaram de estar nessa faixa (houve contato ou o lead saiu da exportação) e ${n0(c.cont)} continuam parados. Outros ${n0(c.entr)} passaram dos 30 dias no período.`);
+}
+
+/* ============ cabeçalho, rotas e render ============ */
+const app=$('#app');
+function renderHeader(){
+  const has=!!S.m;
+  $('#tabs').hidden=!has;$('#topact').hidden=!has;$('#topfile').hidden=!has;
+  if(!has)return;
+  const m=S.m,h=(location.hash.slice(1)||'painel');
+  const cur=h==='corretores'||h.startsWith('c-')?'corretores':h==='empreendimentos'||h.startsWith('e-')?'empreendimentos':h==='distribuicao'?'distribuicao':h==='alertas'?'alertas':h==='historico'?'historico':h==='relatorio'?'relatorio':'painel';
+  $('#tabs').innerHTML=[['painel','Painel geral'],['corretores','Corretores'],['empreendimentos','Empreendimentos'],['distribuicao','Distribuição'],['alertas','Alertas'],['historico','Histórico'],['relatorio','Relatório']].map(t=>`<a href="#${t[0]}"${t[0]===cur?' aria-current="page"':''}>${t[1]}</a>`).join('');
+  const old=m.ref!=null?todayDay()-m.ref:null;
+  $('#topfile').innerHTML=m.sample?'<b>Dados de exemplo</b><span class="fn">nenhuma planilha carregada</span>':
+    `<b>Exportação de ${fmtDay(m.ref)}</b> · ${n0(m.leads.length)} leads${old!=null&&old>=2?` · há ${old} dias`:''}<span class="fn" title="${esc(m.fileName)}">${esc(m.fileName)}</span>`;
+}
+function startHTML(){
+  return`<div class="start">
+    <div><h1>Dashboard Gerencial SKR</h1><p class="sub">Coloque a Planilha Base exportada do CRM e veja o painel, a ficha de cada corretor, os empreendimentos, a carteira de distribuição, os alertas e um relatório pronto para copiar.</p></div>
+    <label class="drop" id="drop" for="file"><b>Solte a planilha aqui</b><span class="muted">ou clique para escolher o arquivo (.xlsx ou .csv)</span></label>
+    <p class="hint" style="margin-top:-8px">A planilha é lida neste computador. Nada é enviado para a internet. Nenhum dado de lead (nome, telefone, e-mail) fica guardado; só os totais de cada exportação, para comparar uma semana com a outra.</p>
+    <ul>
+      <li><b>Painel geral</b><span>Carteiras, situação dos leads, alertas de 15, 30 e 36 dias e qualidade dos dados.</span></li>
+      <li><b>Ficha do corretor</b><span>Clique no nome e veja todos os números e a lista de leads dele.</span></li>
+      <li><b>Empreendimentos</b><span>Leads, alertas e corretores de cada empreendimento.</span></li>
+      <li><b>Carteira de distribuição</b><span>Os leads que ainda precisam de corretor, com triagem de P1 a P4.</span></li>
+      <li><b>Histórico</b><span>Compare a exportação de hoje com a de semanas anteriores.</span></li>
+      <li><b>Relatório pronto</b><span>Texto gerencial com os números da planilha, para copiar e colar.</span></li>
+    </ul>
+    <div class="chips"><button class="btn" type="button" data-act="sample">Ver com dados de exemplo</button>${S.hist.length?`<a class="btn" href="#historico">Ver histórico (${S.hist.length} exportaç${S.hist.length===1?'ão':'ões'})</a>`:''}</div>
+  </div>`;
+}
+function render(){
+  renderHeader();
+  const h=location.hash.slice(1)||'painel';
+  if(!S.m){app.innerHTML=h==='historico'&&S.hist.length?viewHistorico():startHTML();return}
+  const m=S.m;let html,exKey=null;
+  const banner=m.sample?'<div class="sample-banner"><b>Dados de exemplo.</b> Estes leads e corretores são inventados, só para mostrar o painel. Clique em Trocar planilha para usar a sua.</div>':'';
+  if(h==='corretores')html=viewCorretores();
+  else if(h==='empreendimentos')html=viewEmpreendimentos();
+  else if(h==='relatorio')html=viewRelatorio();
+  else if(h==='historico')html=viewHistorico();
+  else if(h==='distribuicao'){if(m.dist){html=viewFicha(m.dist,'dist');exKey='distribuicao'}else html='<div class="panel empty">Esta planilha não tem a carteira de distribuição ('+esc(S.settings.dist)+'). O nome pode ser ajustado em Configurações.</div>'}
+  else if(h==='alertas'){html=viewAlertas();exKey='alertas'}
+  else if(h.startsWith('c-')){const b=m.brokers.find(x=>x.slug===h&&x.g!=='dist');if(!b){location.hash='#corretores';return}html=viewFicha(b,'broker');exKey=b.slug}
+  else if(h.startsWith('e-')){const b=m.emps.find(x=>x.slug===h);if(!b){location.hash='#empreendimentos';return}html=viewFicha(b,'emp');exKey=b.slug}
+  else html=viewPainel();
+  app.innerHTML=banner+html;
+  if(exKey)exRefresh(exKey);
+}
+function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>{el.hidden=true},3200)}
+function showMsg(t,kind){$('#msg').innerHTML=t?`<div class="msg ${kind||'err'}" role="alert"><span>${t}</span><button type="button" data-act="closemsg" aria-label="Fechar aviso">×</button></div>`:''}
+
+/* ============ carregar arquivo ============ */
+async function handleFile(file){
+  showMsg('');
+  if(S.m===null)app.innerHTML='<div class="start"><p class="sub">Lendo a planilha…</p></div>';
+  try{
+    const ext=(file.name.split('.').pop()||'').toLowerCase();
+    let rows,sheetName='',hdr;
+    if(['csv','tsv','txt'].includes(ext)){rows=await readCsv(file);hdr=findHeader(rows)}
+    else if(ext==='xls')throw new Error('Arquivos .xls antigos não são lidos. Abra no Excel e salve como .xlsx ou CSV.');
+    else{
+      const r=await readXlsxTables(await file.arrayBuffer(),rs=>!!findHeader(rs));
+      if(r){rows=r.rows;sheetName=r.sheetName;hdr=findHeader(rows)}
+    }
+    if(!hdr)throw new Error('Não encontrei as colunas esperadas. A planilha precisa ter, no mínimo, '+Object.values(COL_NAMES).join(', ')+'. Use a Planilha Base exportada do CRM.');
+    loadTable(rows,sheetName,file.name,hdr);
+    const rec=histRecord();
+    if(!location.hash||!/^#(painel|corretores|empreendimentos|distribuicao|alertas|historico|relatorio|c-|e-)/.test(location.hash))location.hash='#painel';
+    render();window.scrollTo(0,0);
+    if(rec)toast(rec.isNew?`Exportação de ${fmtDay(rec.snap.ref)} guardada no histórico.`:`Histórico atualizado para a exportação de ${fmtDay(rec.snap.ref)}.`);
+    if(S.m.missing.length)showMsg('Colunas que não vieram nesta planilha: '+esc(S.m.missing.join(', '))+'. Os números que dependem delas ficam incompletos.','info');
+  }catch(e){
+    showMsg(esc(e.message||String(e)),'err');render();
+  }
+}
+
+/* ============ dados de exemplo ============ */
+function loadSample(){
+  let seed=20261104;const rnd=()=>{seed=(seed*1664525+1013904223)%4294967296;return seed/4294967296};
+  const pick=a=>a[Math.floor(rnd()*a.length)];
+  const names=['Alice','Bruno','Carla','Diego','Elisa','Fábio','Gisele','Hugo'].map((n,i)=>`CORRETOR ${n.toUpperCase()} EXEMPLO - ${n.toUpperCase()}`);
+  const dist='CORRETOR EQUIPE EVANDRO';
+  const sits=[['Tentativa de Contato',58],['Em Atendimento',20],['Aguardando Atendimento',8],['Visita Realizada',5],['Visita Agendada',3],['Cliente Futuro',3],['Venda Realizada',2],['Reserva',1]];
+  const wsum=sits.reduce((a,s)=>a+s[1],0),pickSit=()=>{let r=rnd()*wsum;for(const s of sits){if((r-=s[1])<0)return s[0]}return sits[0][0]};
+  const origs=['Instagram','Instagram','Instagram','Facebook','Website','Painel Gestor','Google','Painel Corretor'];
+  const emps=['EX1','EX2','EX3','EX4','EX5','EX1, EX2','EX3, EX4',''];
+  const today=todayDay();const rows=[['Id','Situação','Data Primeiro Cadastro','Data da Última Entrada','Nome','E-mail','Telefone','Empreendimento','Reserva','Simulação','Corretor','Primeira Origem','Data da Primeira Interação (Corretor)','Dias sem contato','Momento do Lead']];
+  const mk=(corretor,i,dist)=>{
+    const dias=dist?Math.floor(rnd()<.25?rnd()*120:rnd()*40):Math.floor(rnd()<.12?16+rnd()*30:rnd()*22);
+    const cad=today-Math.floor(30+rnd()*300),ent=today-Math.min(dias+Math.floor(rnd()*5),400);
+    rows.push([100000-rows.length,pickSit(),cad+25569,ent+25569,'Cliente Exemplo '+String(rows.length).padStart(3,'0'),'cliente'+rows.length+'@exemplo.com',
+      '+55119'+String(10000000+Math.floor(rnd()*89999999)),pick(emps),0,0,corretor,pick(origs),rnd()<.2?null:ent+25569,dias,rnd()<.9?null:pick(['Frio','Morno','Quente'])]);
+  };
+  names.forEach((n,i)=>{const c=40+Math.floor(rnd()*70);for(let k=0;k<c;k++)mk(n,k,false)});
+  for(let k=0;k<150;k++)mk(dist,k,true);
+  const hdr=findHeader(rows);
+  loadTable(rows,'',"exemplo",hdr);
+  S.sample=true;S.sampleTeam=new Set(names.map(norm));S.m.sample=true;recompute();
+  location.hash='#painel';render();window.scrollTo(0,0);
+}
+
+/* ============ configurações ============ */
+function openSettings(){
+  if(!S.m)return;
+  if(S.sample){toast('As configurações não se aplicam aos dados de exemplo.');return}
+  const m=S.m,list=m.brokers.filter(b=>b.g!=='dist').sort((a,b)=>a.nick.localeCompare(b.nick,'pt-BR'));
+  const ov=document.createElement('div');ov.className='ov';ov.id='ov';
+  ov.innerHTML=`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlg-t">
+    <h2 id="dlg-t">Configurações</h2><p class="hint">Ficam salvas neste navegador.</p>
+    <p style="margin:14px 0 4px"><label for="set-dist"><b>Nome da carteira de distribuição</b></label></p>
+    <input type="text" id="set-dist" value="${esc(S.settings.dist)}" style="width:100%">
+    <p style="margin:14px 0 4px"><label for="set-emp"><b>Siglas dos empreendimentos</b></label></p>
+    <p class="hint">Uma por linha, no formato SIGLA = Nome. Empreendimentos: ${esc(OFFICIAL.join(', '))}. Nomes que não estão aqui ficam de fora da tabela de empreendimentos.</p>
+    <textarea id="set-emp" rows="8" style="width:100%;margin-top:6px" spellcheck="false">${esc(S.settings.emp)}</textarea>
+    <p style="margin:14px 0 0"><b>Corretores da equipe</b></p><p class="hint">Marque quem faz parte da equipe do Evandro. Quem fica desmarcado vai para "Fora da equipe" e sai do ranking.</p>
+    <div class="team">${list.map((b,i)=>`<label><input type="checkbox" data-ck="${esc(b.ck)}" ${b.g==='equipe'?'checked':''}><span>${esc(b.nick)} <span class="muted">· ${esc(b.full)} · ${n0(b.st.n)} lead${b.st.n===1?'':'s'}</span></span></label>`).join('')||'<span class="muted">Nenhum corretor na planilha.</span>'}</div>
+    <div class="acts"><button class="btn" type="button" data-act="set-reset">Restaurar padrão</button><button class="btn" type="button" data-act="set-cancel">Cancelar</button><button class="btn btn-primary" type="button" data-act="set-save">Salvar</button></div></div>`;
+  document.body.appendChild(ov);$('#set-dist').focus();
+}
+function openImport(){
+  const ov=document.createElement('div');ov.className='ov';ov.id='ov';
+  ov.innerHTML=`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlg-t"><h2 id="dlg-t">Importar histórico</h2>
+    <p class="hint">Cole o texto da cópia de segurança ou escolha o arquivo .json. Datas que já existem são mantidas, a menos que a importada seja mais recente.</p>
+    <p style="margin:10px 0"><input type="file" id="hist-file" accept=".json,application/json,text/plain" aria-label="Arquivo do histórico"></p>
+    <textarea id="hist-txt" rows="8" style="width:100%" spellcheck="false" aria-label="Texto do histórico" placeholder="Cole aqui"></textarea>
+    <div class="acts"><button class="btn" type="button" data-act="set-cancel">Cancelar</button><button class="btn btn-primary" type="button" data-act="hist-import-go">Importar</button></div></div>`;
+  document.body.appendChild(ov);$('#hist-txt').focus();
+}
+function closeSettings(){const o=$('#ov');if(o)o.remove()}
+function saveFromDialog(){
+  const present=new Set(S.m.brokers.flatMap(b=>[b.ck,nickKey(b.ck)]).filter(Boolean)),checked=[...document.querySelectorAll('#ov [data-ck]')].filter(c=>c.checked).map(c=>c.dataset.ck);
+  S.settings.team=S.settings.team.filter(k=>!present.has(k)).concat(checked);
+  S.settings.dist=str($('#set-dist').value)||DEFAULT_DIST;
+  S.settings.emp=$('#set-emp').value;
+  saveSettings();closeSettings();recompute();histRecord();S.ex={};render();toast('Configurações salvas.');
+}
+
+/* ============ eventos ============ */
+function copyText(text,okMsg){
+  const ok=()=>toast(okMsg),no=()=>toast('Não consegui copiar. Selecione o texto e copie manualmente.');
+  const fb=()=>{const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();let done=false;try{done=document.execCommand('copy')}catch(_){}ta.remove();done?ok():no()};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(ok,fb);else fb();
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act],[data-preset]');if(!t)return;
+  if(t.dataset.preset){S.ex.alertas={...exDefault(),...JSON.parse(t.dataset.preset)};if(location.hash==='#alertas'){e.preventDefault();render();window.scrollTo(0,0)}return}
+  const key=t.dataset.ex;
+  switch(t.dataset.act){
+    case'pick':$('#file').click();break;
+    case'sample':loadSample();break;
+    case'settings':openSettings();break;
+    case'set-cancel':closeSettings();break;
+    case'set-save':saveFromDialog();break;
+    case'set-reset':S.settings={team:DEFAULT_TEAM.slice(),dist:DEFAULT_DIST,emp:DEFAULT_EMP};saveSettings();closeSettings();recompute();histRecord();S.ex={};render();toast('Configurações padrão restauradas.');break;
+    case'closemsg':showMsg('');break;
+    case'hist-del':S.hdel=+t.dataset.v;render();break;
+    case'hist-del-no':S.hdel=null;render();break;
+    case'hist-del-yes':{const r=+t.dataset.v;S.hist=S.hist.filter(x=>x.ref!==r);histStore();S.hdel=null;render();toast('Exportação removida do histórico.');break}
+    case'hist-copy':copyText(histJSON(),'Histórico copiado. Cole num bloco de notas para guardar.');break;
+    case'hist-dl':{
+      try{const url=URL.createObjectURL(new Blob([histJSON()],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='historico-skr.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+        toast('Arquivo gerado. Se o download não começar, use Copiar histórico.')}catch(_){toast('Não consegui gerar o arquivo. Use Copiar histórico.')}break}
+    case'hist-import':openImport();break;
+    case'hist-import-go':{try{const k=histImport($('#hist-txt').value);closeSettings();render();toast(k?`${k} exportaç${k===1?'ão importada':'ões importadas'}.`:'Nenhuma exportação nova nesse texto.')}catch(err){toast(err.message)}break}
+    case'sort':{const c=t.dataset.v;S.sort=S.sort.col===c?{col:c,dir:-S.sort.dir}:{col:c,dir:c==='name'?1:-1};render();break}
+    case'exf':S.ex[key][t.dataset.f]=t.dataset.v;S.ex[key].limit=100;exRefresh(key);break;
+    case'exband':{const fk=t.dataset.f||'band';S.ex[key][fk]=t.dataset.v;if(fk==='prio')S.ex[key].band='';S.ex[key].limit=100;exRefresh(key);const el=document.getElementById('ex-'+key);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});break}
+    case'exsort':{const f=S.ex[key],c=t.dataset.v;f.dir=f.sort===c?-f.dir:(c==='dias'||c==='inter'||c==='ent'?-1:1);f.sort=c;exRefresh(key);break}
+    case'more':S.ex[key].limit+=100;exRefresh(key);break;
+    case'copy':{const r=exCsv(key,'\t');copyText(r.text,n0(r.n)+' leads copiados. Cole na planilha.');break}
+    case'rep-copy':copyText(reportText(buildReport()),'Relatório copiado. Cole onde precisar.');break;
+    case'rep-txt':{
+      try{const url=URL.createObjectURL(new Blob(['\ufeff'+reportText(buildReport())],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='relatorio-gerencial-skr-'+fmtDay(S.m.ref||todayDay()).replace(/\//g,'-')+'.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+        toast('Arquivo .txt gerado. Se o download não começar, use Copiar relatório.')}catch(_){toast('Não consegui gerar o arquivo. Use Copiar relatório.')}break}
+    case'csv':{const r=exCsv(key,';');
+      try{const url=URL.createObjectURL(new Blob(['﻿'+r.text],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='leads-skr-'+fmtDay(S.m.ref||todayDay()).replace(/\//g,'-')+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+        toast('Arquivo CSV gerado com '+n0(r.n)+' leads. Se o download não começar, use Copiar para planilha.')}catch(_){toast('Não consegui gerar o arquivo. Use Copiar para planilha.')}break}
+  }
+});
+document.addEventListener('input',e=>{
+  const t=e.target;if(t.matches('[data-f="q"]')){const box=t.closest('[data-ex]');if(!box)return;const key=box.dataset.ex;S.ex[key].q=t.value;S.ex[key].limit=100;exRefresh(key)}
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.id==='file'){const f=t.files&&t.files[0];t.value='';if(f)handleFile(f);return}
+  if(t.matches('select[data-f]')){const box=t.closest('[data-ex]');if(!box)return;const key=box.dataset.ex;S.ex[key][t.dataset.f]=t.value;S.ex[key].limit=100;exRefresh(key);return}
+  if(t.matches('[data-act-change="jump"]'))location.hash='#'+t.value;
+  if(t.matches('[data-act-change="hist-a"]')){S.hc.a=+t.value;render();return}
+  if(t.matches('[data-act-change="hist-b"]')){S.hc.b=+t.value;render();return}
+  if(t.matches('[data-act-change="hist-metric"]')){S.hm=t.value;render();return}
+  if(t.id==='hist-file'){const f=t.files&&t.files[0];if(f)f.text().then(x=>{$('#hist-txt').value=x})}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSettings()});
+['dragenter','dragover'].forEach(ev=>window.addEventListener(ev,e=>{e.preventDefault();const d=$('#drop');if(d)d.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>window.addEventListener(ev,e=>{e.preventDefault();const d=$('#drop');if(d)d.classList.remove('over');
+  if(ev==='drop'&&e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0])}));
+window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});
+window.__skr={S,EX};
+render();
+})();
+</script>
+</body></html>
