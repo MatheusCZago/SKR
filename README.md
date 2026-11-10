@@ -2,7 +2,9 @@
 
 Painel gerencial da equipe do Evandro (SKR). Página única, sem servidor e sem dependências.
 
-**Página:** https://matheusczago.github.io/SKR/ (disponível depois de ativar o GitHub Pages em Settings → Pages)
+**Página:** https://matheusczago.github.io/SKR/ (no ar pelo GitHub Pages)
+
+**Próxima versão (V6):** em desenvolvimento, ainda não publicada. Conta com login, dados cifrados no navegador e leitura tolerante a mudanças na planilha. Anotações em [docs/V6.md](docs/V6.md) e [docs/LGPD-e-leis.md](docs/LGPD-e-leis.md).
 
 ## Como usar
 

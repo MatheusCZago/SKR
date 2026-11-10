@@ -12,7 +12,7 @@ Painel gerencial da equipe de vendas do Evandro (SKR, imobiliária). O gerente s
 - `sw.js` + `manifest.webmanifest` + ícones: app instalável (PWA) que abre sem internet. Ao mudar arquivos do cache, subir a versão de `CACHE` em `sw.js`.
 - Publicado pelo GitHub Pages: https://matheusczago.github.io/SKR/ (1 a 2 minutos depois do push em `main`).
 
-Esta é a V3. Existe uma V5 (demonstração do produto para vender a outras imobiliárias: login, várias empresas, tela Hoje, sugestão de distribuição, avisos, desempenho, conexão com o CV), toda simulada, que fica fora deste repositório, na máquina do usuário.
+Esta é a V3, que continua no ar para o Evandro. A V5 (demonstração simulada) foi arquivada. A **V6** (produto: conta com login, dados cifrados, leitura tolerante da planilha) está pronta e testada, mas o código fica **só na máquina do usuário** até ele decidir publicar. Decisões, funcionamento e pendências: [docs/V6.md](docs/V6.md). Leis e LGPD: [docs/LGPD-e-leis.md](docs/LGPD-e-leis.md).
 
 ## Regras de negócio (confirmadas pelo Evandro)
 
@@ -29,10 +29,13 @@ Esta é a V3. Existe uma V5 (demonstração do produto para vender a outras imob
 
 - Ler o README e o `git log` antes de mexer.
 - Editar `index.html`, testar abrindo no navegador (com uma planilha de teste fictícia, nunca a real), e só então commit.
-- Commit e push só com aprovação do usuário.
+- Commit e push só com aprovação do usuário. Desde 10/11/2026: **código não sobe** para o GitHub; anotações (docs, README, este arquivo) podem subir.
 - Visual profissional, modo claro e escuro, azul-marinho da marca. A paleta roxo/amarelo foi descartada.
 
-## Próximos passos conhecidos
+## Decisões em vigor (10/11/2026)
 
-- Juntar V3 e V5 numa base única; tirar equipe e nome da carteira de distribuição do código (virar configuração por empresa).
-- Integração com o CV CRM (portal: https://desenvolvedor.cvcrm.com.br), que depende de token só leitura e autorização da SKR.
+- **Sem integração direta com o CV CRM por enquanto**: o gerente exporta a planilha e arrasta para o painel. A integração pode voltar depois do lançamento, como atualização.
+- O produto parte da V3 (não da V5). Equipe, carteira de distribuição e empreendimentos viraram configuração de cada conta (com um "modelo SKR").
+- Dados do gerente ficam na conta dele, cifrados no navegador; só quem subiu vê. Sem servidor por enquanto.
+- Mudanças na planilha não podem derrubar o app; a idade da planilha fica sempre visível.
+- Tudo o que for acrescentado ou tirado é anotado em docs/V6.md.
