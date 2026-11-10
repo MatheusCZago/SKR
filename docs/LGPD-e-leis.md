@@ -20,7 +20,7 @@ Atualizado em 10/11/2026. **Não é parecer jurídico nem contábil.** É um map
 | Exigência | Onde está na lei | Situação na V6 |
 | --- | --- | --- |
 | Segurança técnica | art. 46 | **Feito**: AES-GCM 256, PBKDF2 600 mil rodadas, senha mínima de 10 caracteres, trava após 5 erros, sessão encerra em 30 min, chave por conta, bloqueio de envio a outros endereços (CSP), nenhum serviço de terceiros |
-| Necessidade e minimização | art. 6º, III | **Feito**: guarda só a última planilha (pode desligar) e um histórico de totais com os Ids dos leads parados há mais de 30 dias |
+| Necessidade e minimização | art. 6º, III | **Feito**: guarda só a última planilha (pode desligar) e um histórico de totais com, por lead, só o Id e a etapa do funil nas 12 exportações mais recentes (sem nome, telefone ou e-mail) |
 | Transparência | art. 6º, VI, e art. 9º | **Rascunho**: Política de Privacidade, Termos de Uso e "Como protegemos seus dados" dentro do app. Falta revisão jurídica e dados da empresa |
 | Direitos do titular (acesso, portabilidade, eliminação) | art. 18 | **Feito para o usuário**: baixar meus dados, apagar planilha/histórico, apagar conta. Leads: atendidos pela imobiliária |
 | Registro das operações | art. 37 | **Parcial**: registro de atividades cifrado por conta. Falta o registro (inventário) do próprio fornecedor |

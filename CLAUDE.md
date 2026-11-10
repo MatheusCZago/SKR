@@ -12,7 +12,7 @@ Painel gerencial da equipe de vendas do Evandro (SKR, imobiliária). O gerente s
 - `sw.js` + `manifest.webmanifest` + ícones: app instalável (PWA) que abre sem internet. Ao mudar arquivos do cache, subir a versão de `CACHE` em `sw.js`.
 - Publicado pelo GitHub Pages: https://matheusczago.github.io/SKR/ (1 a 2 minutos depois do push em `main`).
 
-Esta é a V3, que continua no ar para o Evandro. A V5 (demonstração simulada) foi arquivada. A **V6** (produto: conta com login, dados cifrados, leitura tolerante da planilha) está pronta e testada, mas o código fica **só na máquina do usuário** até ele decidir publicar. Decisões, funcionamento e pendências: [docs/V6.md](docs/V6.md). Leis e LGPD: [docs/LGPD-e-leis.md](docs/LGPD-e-leis.md).
+Esta é a V3, que continua no ar para o Evandro. A V5 (demonstração simulada) foi arquivada. A **V6** (produto: conta com login, dados cifrados, leitura tolerante da planilha, abas Hoje, Desempenho e Administração, sugestão de distribuição, relatório em PDF) está pronta e testada, mas o código fica **só na máquina do usuário** até ele decidir publicar. Decisões, funcionamento e pendências: [docs/V6.md](docs/V6.md). Leis e LGPD: [docs/LGPD-e-leis.md](docs/LGPD-e-leis.md).
 
 ## Regras de negócio (confirmadas pelo Evandro)
 
